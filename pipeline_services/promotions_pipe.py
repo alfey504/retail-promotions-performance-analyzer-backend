@@ -1,6 +1,6 @@
 from api_services.promotions_api import get_promotions
 from db_services.models import Promotion, PromotionSku, PromotionBundle
-from db_services.bundle_db import add_bundles
+from db_services.promotions_db import add_promotions
 
 
 def pipe_promotions():
@@ -28,6 +28,6 @@ def pipe_promotions():
                 )
 
             promotions_db.append(promotion_db)
-        add_bundles(promotions_db)
+        add_promotions(promotions_db)
     except Exception as e:
             raise e

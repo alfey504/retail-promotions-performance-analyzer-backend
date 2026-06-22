@@ -12,6 +12,9 @@ from pipeline_services.customers_pipe import pipe_customers
 from pipeline_services.fulfillment_pipe import pipe_fulfillment
 from pipeline_services.bundle_pipe import pipe_bundle
 from pipeline_services.promotions_pipe import pipe_promotions
+from pipeline_services.sales_pipe import pipe_sales
+
+
 def main():
     # products = get_products()
     # for product in products:
@@ -56,7 +59,10 @@ def main():
 
     # pipe_fulfillment()
     # pipe_bundle()
-    pipe_promotions()
+    # pipe_promotions()
+
+    pipe_sales()
+
     
     return
 
