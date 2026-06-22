@@ -10,7 +10,8 @@ from db_services.session import init_db
 from db_services.product_db import get_product_by_id
 from pipeline_services.customers_pipe import pipe_customers
 from pipeline_services.fulfillment_pipe import pipe_fulfillment
-
+from pipeline_services.bundle_pipe import pipe_bundle
+from pipeline_services.promotions_pipe import pipe_promotions
 def main():
     # products = get_products()
     # for product in products:
@@ -52,7 +53,10 @@ def main():
     # pipe_product()
     # pipe_skus()
     # pipe_customers()
-    pipe_fulfillment()
+
+    # pipe_fulfillment()
+    # pipe_bundle()
+    pipe_promotions()
     
     return
 
