@@ -8,6 +8,8 @@ from api_services.sales_api import get_sales_by_page, get_all_sales
 from pipeline_services.product_pipe import pipe_product
 from db_services.session import init_db
 from db_services.product_db import get_product_by_id
+from pipeline_services.customers_pipe import pipe_customers
+from pipeline_services.fulfillment_pipe import pipe_fulfillment
 
 def main():
     # products = get_products()
@@ -45,11 +47,13 @@ def main():
     #     print(sale.sale_date)
     #     if i > 10:
     #         break
-    init_db()
+    # init_db()
 
     # pipe_product()
-    product = get_product_by_id(2)
-    print(product.product_name)
+    # pipe_skus()
+    # pipe_customers()
+    pipe_fulfillment()
+    
     return
 
 
