@@ -1,7 +1,7 @@
 from pypdf import PdfReader
 
 DOC_RUNNING_HEADER = "Promotion Profiles" 
-DOCUMENT_PATH = "document/promotion_profiles.pdf"
+DOCUMENT_PATH = "documents/promotion_profiles.pdf"
 def isPageFooter(line: str):
     l = line.strip()
     return l.startswith("Page ") and l[len("Page "):].isdigit()
