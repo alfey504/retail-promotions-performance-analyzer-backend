@@ -11,7 +11,7 @@ from qdrant_client.models import (
     Fusion
 )
 from fastembed import SparseTextEmbedding, SparseEmbedding
-from rag_services.embedder import embedd_text
+from rag_services.embedding_services import embedd_text, sparse_embedd_text, embed_sparse
 
 import os
 import uuid
@@ -38,16 +38,6 @@ def ensure_collection(client: QdrantClient, dense_dim: int):
             sparse_vectors_config= {"bm25" : SparseVectorParams(modifier=Modifier.IDF)}
         )
 
-def embed_sparse(chunks: list[dict]) -> list[dict]:
-    sparse_embedding_model = SparseTextEmbedding(SPARSE_MODEL_NAME)
-    sparse_vecs = list(sparse_embedding_model.embed([c["text"] for c in chunks]))
-    for chunk, sparse_vec in zip(chunks, sparse_vecs):
-        chunk["sparse_embeddings"] = sparse_vec
-    return chunks
-
-def sparse_embedd_text(text: str) -> SparseEmbedding:
-    sparse_embedding_model = SparseTextEmbedding(SPARSE_MODEL_NAME)
-    return list(sparse_embedding_model.embed(text))[0]
 
 def upsert(client: QdrantClient, chunks: list[dict]):
     # print(chunks[0]["embedding"])

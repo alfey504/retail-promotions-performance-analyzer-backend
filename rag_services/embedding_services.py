@@ -1,8 +1,11 @@
 from huggingface_hub import InferenceClient
 from pathlib import Path
 import json 
+from fastembed import SparseTextEmbedding, SparseEmbedding
 
 BASE_URL = "http://127.0.0.1:8080"
+SPARSE_MODEL_NAME = "Qdrant/bm25"
+
 
 def embed_chunks(chunks: list[dict], force_invalidate_cache = False) -> list[dict]:
     if not force_invalidate_cache:
@@ -45,3 +48,14 @@ def embedd_text(text: str) -> list:
     inference_client = InferenceClient(base_url=BASE_URL)
     embedded_text = inference_client.feature_extraction(text)
     return embedded_text[0].tolist()
+
+def embed_sparse(chunks: list[dict]) -> list[dict]:
+    sparse_embedding_model = SparseTextEmbedding(SPARSE_MODEL_NAME)
+    sparse_vecs = list(sparse_embedding_model.embed([c["text"] for c in chunks]))
+    for chunk, sparse_vec in zip(chunks, sparse_vecs):
+        chunk["sparse_embeddings"] = sparse_vec
+    return chunks
+
+def sparse_embedd_text(text: str) -> SparseEmbedding:
+    sparse_embedding_model = SparseTextEmbedding(SPARSE_MODEL_NAME)
+    return list(sparse_embedding_model.embed(text))[0]
