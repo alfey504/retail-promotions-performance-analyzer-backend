@@ -11,11 +11,10 @@ from qdrant_client.models import (
     Fusion
 )
 from fastembed import SparseTextEmbedding, SparseEmbedding
-from rag_services.embedding_services import embedd_text, sparse_embedd_text, embed_sparse
+from services.rag_services.embedding_services import embedd_text, sparse_embedd_text, embed_sparse
 
 import os
 import uuid
-
 COLLECTION_NAME = "promotion_profile.pdf"
 SPARSE_MODEL_NAME = "Qdrant/bm25"
 DENSE_DIM = 1024
