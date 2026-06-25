@@ -21,11 +21,6 @@ def pipe_promotions():
                 promotion_db.sku_links.append(
                     PromotionSku(sku_id=sku_id)
                 )
-            
-            for bundle_id in promotion.target_bundle_ids:
-                promotion_db.bundle_links.append(
-                     PromotionBundle(bundle_id=bundle_id)
-                )
 
             promotions_db.append(promotion_db)
         add_promotions(promotions_db)

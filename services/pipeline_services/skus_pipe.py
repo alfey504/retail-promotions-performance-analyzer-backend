@@ -6,7 +6,7 @@ from services.db_services.models import Sku
 def pipe_skus():
     try:
         skus = get_skus()
-        skus_db = list[Sku]()
+        skus_db : list[Sku] = []
         for sku in skus:
             sku_db = Sku(
                 sku_id = sku.sku_id,
