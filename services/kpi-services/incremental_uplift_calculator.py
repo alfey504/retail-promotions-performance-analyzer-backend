@@ -89,12 +89,10 @@ def _promo_ids_for_skus(session: Session, sku_ids: List[int]) -> List[int]:
         .distinct()
     ).scalars().all()
 
-    bundle_promos: List[int] = []
+    bundle_promos = []
     if bundle_ids:
         bundle_promos = session.execute(
-            select(PromotionBundle.promotion_id)
-            .where(PromotionBundle.bundle_id.in_(list(bundle_ids)))
-            .distinct()
+            select(PromotionBundle.promotion_id).where(PromotionBundle.bundle_id.in_(list(bundle_ids))).distinct()
         ).scalars().all()
 
     return list(set(list(direct) + list(bundle_promos)))
