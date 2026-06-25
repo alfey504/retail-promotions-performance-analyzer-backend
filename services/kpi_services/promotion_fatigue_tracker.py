@@ -1,7 +1,6 @@
-# Promotion Fatigue Tracker KPI
-# Generated KPI file
 
 from datetime import timedelta
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from services.db_services.models import (
@@ -17,13 +16,16 @@ from services.db_services.models import (
 )
 from services.db_services.session import SessionLocal
 from typing import Any
+
+# ---------- Fetchers ----------
+
 def _fetch_promotion(session: Session, promotion_id: int):
     promo = session.get(Promotion, promotion_id)
-    if promo is None:
+    if not promo:
         raise ValueError(f"Promotion {promotion_id} not found")
     return promo
 
-def _fetch_promotion_family(session: Session, promotion_type: str):
+def _fetch_promotion_family(session, promotion_type):
     return (
         session.query(Promotion)
         .filter(Promotion.promotion_type == promotion_type)
@@ -32,105 +34,157 @@ def _fetch_promotion_family(session: Session, promotion_type: str):
     )
 
 def _fetch_target_skus(session, promotion_id):
-    rows = session.query(PromotionSku).filter(
-        PromotionSku.promotion_id == promotion_id
-    ).all()
-    return {r.sku_id for r in rows}
+    return {
+        r.sku_id
+        for r in session.query(PromotionSku)
+        .filter(PromotionSku.promotion_id == promotion_id)
+        .all()
+    }
 
 def _fetch_target_bundles(session, promotion_id):
-    rows = session.query(PromotionBundle).filter(
-        PromotionBundle.promotion_id == promotion_id
-    ).all()
-    return {r.bundle_id for r in rows}
-
-def _promotion_revenue(session, promo, sku_ids, bundle_ids):
-    sales = (
-        session.query(Sale)
-        .join(SalePromotion, SalePromotion.sales_id == Sale.sales_id)
-        .filter(SalePromotion.promotion_id == promo.promotion_id)
+    return {
+        r.bundle_id
+        for r in session.query(PromotionBundle)
+        .filter(PromotionBundle.promotion_id == promotion_id)
         .all()
+    }
+
+# ---------- Revenue ----------
+
+def _promotion_sku_revenue(session, promo, sku_ids):
+    if not sku_ids:
+        return 0.0
+
+    value = (
+        session.query(
+            func.coalesce(
+                func.sum(SkuSale.quantity * Sku.price),
+                0
+            )
+        )
+        .join(Sku, Sku.sku_id == SkuSale.sku_id)
+        .join(Sale, Sale.sales_id == SkuSale.sales_id)
+        .join(
+            SalePromotion,
+            SalePromotion.sales_id == Sale.sales_id
+        )
+        .filter(
+            SalePromotion.promotion_id == promo.promotion_id,
+            SkuSale.sku_id.in_(sku_ids)
+        )
+        .scalar()
     )
 
-    sale_ids = {s.sales_id for s in sales}
-    revenue = 0.0
+    return float(value or 0)
 
-    if sku_ids:
-        rows = session.query(SkuSale).filter(
-            SkuSale.sales_id.in_(sale_ids),
-            SkuSale.sku_id.in_(sku_ids)
-        ).all()
+def _promotion_bundle_revenue(session, promo, bundle_ids):
+    if not bundle_ids:
+        return 0.0
 
-        for row in rows:
-            sku = session.get(Sku, row.sku_id)
-            revenue += float(sku.price) * row.quantity
-
-    if bundle_ids:
-        rows = session.query(BundleSale).filter(
-            BundleSale.sales_id.in_(sale_ids),
+    value = (
+        session.query(
+            func.coalesce(
+                func.sum(
+                    BundleSale.quantity * Bundle.bundle_price
+                ),
+                0
+            )
+        )
+        .join(
+            Bundle,
+            Bundle.bundle_id == BundleSale.bundle_id
+        )
+        .join(Sale, Sale.sales_id == BundleSale.sales_id)
+        .join(
+            SalePromotion,
+            SalePromotion.sales_id == Sale.sales_id
+        )
+        .filter(
+            SalePromotion.promotion_id == promo.promotion_id,
             BundleSale.bundle_id.in_(bundle_ids)
-        ).all()
+        )
+        .scalar()
+    )
 
-        for row in rows:
-            bundle = session.get(Bundle, row.bundle_id)
-            revenue += float(bundle.bundle_price) * row.quantity
+    return float(value or 0)
 
-    return round(revenue, 2)
+def _baseline_sku_revenue(session, promo, sku_ids):
+    if not sku_ids:
+        return 0.0
 
-def _baseline_revenue(session, promo, sku_ids, bundle_ids):
     start = promo.start_date - timedelta(days=30)
-    revenue = 0.0
 
-    sales = session.query(Sale).filter(
-        Sale.sale_date >= start,
-        Sale.sale_date < promo.start_date
-    ).all()
-
-    sale_ids = {s.sales_id for s in sales}
-
-    if sku_ids:
-        rows = session.query(SkuSale).filter(
-            SkuSale.sales_id.in_(sale_ids),
+    value = (
+        session.query(
+            func.coalesce(
+                func.sum(SkuSale.quantity * Sku.price),
+                0
+            )
+        )
+        .join(Sku, Sku.sku_id == SkuSale.sku_id)
+        .join(Sale, Sale.sales_id == SkuSale.sales_id)
+        .filter(
+            Sale.sale_date >= start,
+            Sale.sale_date < promo.start_date,
             SkuSale.sku_id.in_(sku_ids)
-        ).all()
+        )
+        .scalar()
+    )
 
-        for row in rows:
-            sku = session.get(Sku, row.sku_id)
-            revenue += float(sku.price) * row.quantity
+    return float(value or 0)
 
-    if bundle_ids:
-        rows = session.query(BundleSale).filter(
-            BundleSale.sales_id.in_(sale_ids),
+def _baseline_bundle_revenue(session, promo, bundle_ids):
+    if not bundle_ids:
+        return 0.0
+
+    start = promo.start_date - timedelta(days=30)
+
+    value = (
+        session.query(
+            func.coalesce(
+                func.sum(
+                    BundleSale.quantity * Bundle.bundle_price
+                ),
+                0
+            )
+        )
+        .join(
+            Bundle,
+            Bundle.bundle_id == BundleSale.bundle_id
+        )
+        .join(Sale, Sale.sales_id == BundleSale.sales_id)
+        .filter(
+            Sale.sale_date >= start,
+            Sale.sale_date < promo.start_date,
             BundleSale.bundle_id.in_(bundle_ids)
-        ).all()
+        )
+        .scalar()
+    )
 
-        for row in rows:
-            bundle = session.get(Bundle, row.bundle_id)
-            revenue += float(bundle.bundle_price) * row.quantity
+    return float(value or 0)
 
-    return round(revenue, 2)
+# ---------- KPI Logic ----------
 
 def _uplift_ratio(promo_revenue, baseline_revenue):
     if baseline_revenue <= 0:
         return None
     return round(promo_revenue / baseline_revenue, 2)
 
-def _detect_fatigue(uplift_history):
-    if len(uplift_history) < 2:
+def _detect_fatigue(history):
+    if len(history) < 2:
         return False
 
-    decreases = 0
-    for i in range(1, len(uplift_history)):
-        if uplift_history[i] < uplift_history[i - 1]:
-            decreases += 1
+    return all(
+        history[i] < history[i - 1]
+        for i in range(1, len(history))
+    )
 
-    return decreases == (len(uplift_history) - 1)
-
-def _fatigue_severity(uplift_history):
-    if len(uplift_history) < 2:
+def _fatigue_severity(history):
+    if len(history) < 2:
         return "insufficient-history"
 
-    first = uplift_history[0]
-    last = uplift_history[-1]
+    first = history[0]
+    last = history[-1]
 
     decline_pct = ((first - last) / first) * 100
 
@@ -149,8 +203,16 @@ def _build_instance_result(promo, uplift):
         "uplift_ratio": uplift,
     }
 
-def promotion_fatigue_tracker(session: Session, promotion_id: int):
-    current_promo = _fetch_promotion(session, promotion_id)
+# ---------- Public Function ----------
+
+def promotion_fatigue_tracker(
+    session: Session,
+    promotion_id: int,
+):
+    current_promo = _fetch_promotion(
+        session,
+        promotion_id
+    )
 
     family = _fetch_promotion_family(
         session,
@@ -161,26 +223,48 @@ def promotion_fatigue_tracker(session: Session, promotion_id: int):
     uplift_history = []
 
     for promo in family:
-        sku_ids = _fetch_target_skus(session, promo.promotion_id)
-        bundle_ids = _fetch_target_bundles(session, promo.promotion_id)
 
-        promo_rev = _promotion_revenue(
+        sku_ids = _fetch_target_skus(
             session,
-            promo,
-            sku_ids,
-            bundle_ids,
+            promo.promotion_id
         )
 
-        baseline_rev = _baseline_revenue(
+        bundle_ids = _fetch_target_bundles(
             session,
-            promo,
-            sku_ids,
-            bundle_ids,
+            promo.promotion_id
+        )
+
+        promo_revenue = (
+            _promotion_sku_revenue(
+                session,
+                promo,
+                sku_ids
+            )
+            +
+            _promotion_bundle_revenue(
+                session,
+                promo,
+                bundle_ids
+            )
+        )
+
+        baseline_revenue = (
+            _baseline_sku_revenue(
+                session,
+                promo,
+                sku_ids
+            )
+            +
+            _baseline_bundle_revenue(
+                session,
+                promo,
+                bundle_ids
+            )
         )
 
         uplift = _uplift_ratio(
-            promo_rev,
-            baseline_rev
+            promo_revenue,
+            baseline_revenue
         )
 
         if uplift is not None:
@@ -189,12 +273,17 @@ def promotion_fatigue_tracker(session: Session, promotion_id: int):
         instances.append(
             _build_instance_result(
                 promo,
-                uplift,
+                uplift
             )
         )
 
-    fatigue_detected = _detect_fatigue(uplift_history)
-    severity = _fatigue_severity(uplift_history)
+    fatigue_detected = _detect_fatigue(
+        uplift_history
+    )
+
+    severity = _fatigue_severity(
+        uplift_history
+    )
 
     return {
         "promotion_id": current_promo.promotion_id,
@@ -212,6 +301,7 @@ def promotion_fatigue_tracker(session: Session, promotion_id: int):
             else f"No fatigue detected. Uplift trend: {uplift_history}"
         )
     }
+
 
 def get_promotion_fatigue_tracker(promotion_id:int) -> dict[str,Any]:
     session = SessionLocal()
