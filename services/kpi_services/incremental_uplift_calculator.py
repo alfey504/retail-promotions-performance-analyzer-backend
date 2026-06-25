@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,9 +6,8 @@ from typing import List
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from services.db_services.session import SessionLocal
 
-# Import your models -- adjust the import path to wherever models.py lives.
+from services.db_services.session import SessionLocal
 from services.db_services.models import (
     Bundle,
     BundleSale,
@@ -19,87 +17,117 @@ from services.db_services.models import (
     PromotionBundle,
     PromotionSku,
     Sale,
-    SalePromotion,
     Sku,
     SkuSale,
 )
 
 
 # ---------------------------------------------------------------------------
-# Return type
+# Return type  (same shape as product-level UpliftResult for easy comparison)
 # ---------------------------------------------------------------------------
 
 @dataclass
 class UpliftResult:
-
-    product_id: int
     promotion_id: int
     promotion_name: str
     promotion_type: str
+    product_id: int
+    product_name: str
 
-    # Promotion window
+    # Windows
     promo_start_date: date
     promo_end_date: date
-
-    # Symmetric pre-promo baseline window (same length as promo)
     baseline_start_date: date
     baseline_end_date: date
 
-    # Revenue totals
+    # Revenue
     promo_revenue: float
     baseline_revenue: float
-
-    # Derived metrics
-    incremental_revenue: float          # promo_revenue − baseline_revenue
+    incremental_revenue: float          
+    # Units
     promo_units: int
     baseline_units: int
-    incremental_units: int              # promo_units − baseline_units
-
+    incremental_units: int             
     # Flags
-    discount_bleed: bool                # positive unit lift but negative revenue lift
-
+    discount_bleed: bool                
 
 # ---------------------------------------------------------------------------
-# Internal helpers
+# Step 1 — resolve all product_ids the promotion touches
 # ---------------------------------------------------------------------------
 
-def _sku_ids_for_product(session: Session, product_id: int) -> List[int]:
-    """Return all sku_ids that belong to the given product_id."""
-    rows = session.execute(
-        select(Sku.sku_id).where(Sku.product_id == product_id)
-    ).scalars().all()
-    return list(rows)
-
-
-def _promo_ids_for_skus(session: Session, sku_ids: List[int]) -> List[int]:
-    
-    if not sku_ids:
-        return []
-
-    # Direct SKU-level promotions
-    direct = session.execute(
-        select(PromotionSku.promotion_id)
-        .where(PromotionSku.sku_id.in_(sku_ids))
+def _product_ids_for_promotion(session: Session, promotion_id: int) -> List[int]:
+    # Path A
+    direct_product_ids = session.execute(
+        select(Sku.product_id)
+        .join(PromotionSku, PromotionSku.sku_id == Sku.sku_id)
+        .where(PromotionSku.promotion_id == promotion_id)
         .distinct()
     ).scalars().all()
 
-    # Bundle-level promotions: find bundles containing these SKUs, then their promos
+    # Path B
     bundle_ids = session.execute(
-        select(BundleSku.bundle_id)
-        .where(BundleSku.sku_id.in_(sku_ids))
+        select(PromotionBundle.bundle_id)
+        .where(PromotionBundle.promotion_id == promotion_id)
         .distinct()
     ).scalars().all()
 
-    bundle_promos: List[int] = []
+    bundle_product_ids: List[int] = []
     if bundle_ids:
-        bundle_promos = session.execute(
-            select(PromotionBundle.promotion_id)
-            .where(PromotionBundle.bundle_id.in_(list(bundle_ids)))
+        bundle_product_ids = session.execute(
+            select(Sku.product_id)
+            .join(BundleSku, BundleSku.sku_id == Sku.sku_id)
+            .where(BundleSku.bundle_id.in_(list(bundle_ids)))
             .distinct()
         ).scalars().all()
 
-    return list(set(list(direct) + list(bundle_promos)))
+    return list(set(list(direct_product_ids) + list(bundle_product_ids)))
 
+
+# ---------------------------------------------------------------------------
+# Step 2 — resolve sku_ids for a product that are IN SCOPE for this promo
+#           (only SKUs the promo actually targets, not all SKUs of the product)
+# ---------------------------------------------------------------------------
+
+def _scoped_sku_ids(
+    session: Session, promotion_id: int, product_id: int
+) -> List[int]:
+    # Direct
+    direct = session.execute(
+        select(PromotionSku.sku_id)
+        .join(Sku, Sku.sku_id == PromotionSku.sku_id)
+        .where(
+            PromotionSku.promotion_id == promotion_id,
+            Sku.product_id == product_id,
+        )
+        .distinct()
+    ).scalars().all()
+
+    # Via bundle
+    bundle_ids = session.execute(
+        select(PromotionBundle.bundle_id)
+        .where(PromotionBundle.promotion_id == promotion_id)
+        .distinct()
+    ).scalars().all()
+
+    bundle_skus: List[int] = []
+    if bundle_ids:
+        bundle_skus = session.execute(
+            select(BundleSku.sku_id)
+            .join(Sku, Sku.sku_id == BundleSku.sku_id)
+            .where(
+                BundleSku.bundle_id.in_(list(bundle_ids)),
+                Sku.product_id == product_id,
+            )
+            .distinct()
+        ).scalars().all()
+
+    return list(set(list(direct) + list(bundle_skus)))
+
+
+# ---------------------------------------------------------------------------
+# Step 3 — revenue + units for a set of SKUs over a date window
+#           (identical apportionment logic as product-level uplift)
+# ---------------------------------------------------------------------------
 
 def _revenue_and_units(
     session: Session,
@@ -107,18 +135,17 @@ def _revenue_and_units(
     start: date,
     end: date,
 ) -> tuple[float, int]:
-    
     if not sku_ids:
         return 0.0, 0
 
-    # ---- SKU line-item revenue ----
-    sku_rev_row = session.execute(
+    # Direct SKU line items
+    sku_row = session.execute(
         select(
             func.coalesce(func.sum(SkuSale.quantity * Sku.price), 0).label("rev"),
             func.coalesce(func.sum(SkuSale.quantity), 0).label("units"),
         )
         .join(Sale, SkuSale.sales_id == Sale.sales_id)
-        .join(Sku, SkuSale.sku_id == Sku.sku_id)
+        .join(Sku,  SkuSale.sku_id   == Sku.sku_id)
         .where(
             SkuSale.sku_id.in_(sku_ids),
             Sale.sale_date >= start,
@@ -126,11 +153,10 @@ def _revenue_and_units(
         )
     ).one()
 
-    sku_revenue = float(sku_rev_row.rev)
-    sku_units = int(sku_rev_row.units)
+    sku_revenue = float(sku_row.rev)
+    sku_units   = int(sku_row.units)
 
-    # ---- Bundle line-item revenue (apportioned) ----
-    # Step 1: find bundles that contain at least one of our SKUs
+    # Bundle line items — apportioned share per product
     bundle_ids = session.execute(
         select(BundleSku.bundle_id)
         .where(BundleSku.sku_id.in_(sku_ids))
@@ -138,84 +164,78 @@ def _revenue_and_units(
     ).scalars().all()
 
     bundle_revenue = 0.0
-    bundle_units = 0
+    bundle_units   = 0
 
-    for bundle_id in bundle_ids:
-        # All SKU prices in this bundle (to compute the apportionment ratio)
-        all_member_skus = session.execute(
+    for bid in bundle_ids:
+        members = session.execute(
             select(Sku.sku_id, Sku.price)
             .join(BundleSku, BundleSku.sku_id == Sku.sku_id)
-            .where(BundleSku.bundle_id == bundle_id)
+            .where(BundleSku.bundle_id == bid)
         ).all()
 
-        total_member_price = sum(float(r.price) for r in all_member_skus)
-        our_member_price = sum(
-            float(r.price) for r in all_member_skus if r.sku_id in sku_ids
-        )
+        total_price = sum(float(m.price) for m in members)
+        our_price   = sum(float(m.price) for m in members if m.sku_id in sku_ids)
 
-        if total_member_price == 0:
+        if total_price == 0:
             continue
 
-        ratio = our_member_price / total_member_price
-
-        bundle_obj = session.get(Bundle, bundle_id)
+        ratio      = our_price / total_price
+        bundle_obj = session.get(Bundle, bid)
         if bundle_obj is None:
             continue
 
-        # Bundle sales in the window
-        bundle_row = session.execute(
-            select(
-                func.coalesce(func.sum(BundleSale.quantity), 0).label("units"),
-            )
+        b_row = session.execute(
+            select(func.coalesce(func.sum(BundleSale.quantity), 0).label("qty"))
             .join(Sale, BundleSale.sales_id == Sale.sales_id)
             .where(
-                BundleSale.bundle_id == bundle_id,
+                BundleSale.bundle_id == bid,
                 Sale.sale_date >= start,
                 Sale.sale_date <= end,
             )
         ).one()
 
-        qty = int(bundle_row.units)
+        qty             = int(b_row.qty)
         bundle_revenue += ratio * float(bundle_obj.bundle_price) * qty
-        bundle_units += qty
+        bundle_units   += qty
 
-    total_revenue = sku_revenue + bundle_revenue
-    total_units = sku_units + bundle_units
-
-    return total_revenue, total_units
+    return round(sku_revenue + bundle_revenue, 2), sku_units + bundle_units
 
 
 # ---------------------------------------------------------------------------
-# Public API
+# Public API — session-aware
 # ---------------------------------------------------------------------------
 
-def compute_uplift(session: Session, product_id: int) -> List[UpliftResult]:
-    
-    sku_ids = _sku_ids_for_product(session, product_id)
-    if not sku_ids:
+def compute_promotion_uplift(
+    session: Session, promotion_id: int
+) -> List[UpliftResult]:
+   
+    promo = session.get(Promotion, promotion_id)
+    if promo is None:
         return []
 
-    promo_ids = _promo_ids_for_skus(session, sku_ids)
-    if not promo_ids:
-        return []
+    promo_start: date = promo.start_date
+    promo_end:   date = promo.end_date
+    N = (promo_end - promo_start).days + 1          # window length (inclusive)
 
-    promotions = session.execute(
-        select(Promotion)
-        .where(Promotion.promotion_id.in_(promo_ids))
-        .order_by(Promotion.start_date)
-    ).scalars().all()
+    # Symmetric baseline: same N days immediately before the promo
+    baseline_end   = promo_start - timedelta(days=1)
+    baseline_start = baseline_end - timedelta(days=N - 1)
+
+    product_ids = _product_ids_for_promotion(session, promotion_id)
+    if not product_ids:
+        return []
 
     results: List[UpliftResult] = []
 
-    for promo in promotions:
-        promo_start: date = promo.start_date
-        promo_end: date = promo.end_date
+    for product_id in sorted(product_ids):
+        product = session.get(Product, product_id)
+        if product is None:
+            continue
 
-        promo_length_days = (promo_end - promo_start).days + 1  # inclusive
-
-        # Symmetric baseline: same number of days immediately before promo
-        baseline_end: date = promo_start - timedelta(days=1)
-        baseline_start: date = baseline_end - timedelta(days=promo_length_days - 1)
+        # Only the SKUs of this product that the promo actually targets
+        sku_ids = _scoped_sku_ids(session, promotion_id, product_id)
+        if not sku_ids:
+            continue
 
         promo_revenue, promo_units = _revenue_and_units(
             session, sku_ids, promo_start, promo_end
@@ -224,25 +244,24 @@ def compute_uplift(session: Session, product_id: int) -> List[UpliftResult]:
             session, sku_ids, baseline_start, baseline_end
         )
 
-        incremental_revenue = promo_revenue - baseline_revenue
-        incremental_units = promo_units - baseline_units
-
-        # Discount bleed: sold more units but made less money
-        discount_bleed = (incremental_units > 0) and (incremental_revenue < 0)
+        incremental_revenue = round(promo_revenue - baseline_revenue, 2)
+        incremental_units   = promo_units - baseline_units
+        discount_bleed      = (incremental_units > 0) and (incremental_revenue < 0)
 
         results.append(
             UpliftResult(
-                product_id=product_id,
                 promotion_id=promo.promotion_id,
                 promotion_name=promo.promotion_name,
                 promotion_type=promo.promotion_type,
+                product_id=product_id,
+                product_name=product.product_name,
                 promo_start_date=promo_start,
                 promo_end_date=promo_end,
                 baseline_start_date=baseline_start,
                 baseline_end_date=baseline_end,
-                promo_revenue=round(promo_revenue, 2),
-                baseline_revenue=round(baseline_revenue, 2),
-                incremental_revenue=round(incremental_revenue, 2),
+                promo_revenue=promo_revenue,
+                baseline_revenue=baseline_revenue,
+                incremental_revenue=incremental_revenue,
                 promo_units=promo_units,
                 baseline_units=baseline_units,
                 incremental_units=incremental_units,
@@ -252,15 +271,18 @@ def compute_uplift(session: Session, product_id: int) -> List[UpliftResult]:
 
     return results
 
-def get_uplift_for_promotion(promotion_id: int) -> UpliftResult:
+
+# ---------------------------------------------------------------------------
+# Public API — session-managed convenience wrapper (mirrors your existing pattern)
+# ---------------------------------------------------------------------------
+
+def get_uplift_for_promotion(promotion_id: int) -> List[UpliftResult]:
+
     session = SessionLocal()
     try:
-        result = compute_uplift(session, product_id=promotion_id)
-        return result
+        return compute_promotion_uplift(session, promotion_id=promotion_id)
     except Exception as e:
         print(f"Error computing uplift for promotion {promotion_id}: {e}")
-        raise e
+        raise
     finally:
         session.close()
-    
-
