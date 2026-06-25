@@ -252,7 +252,7 @@ def compute_uplift(session: Session, product_id: int) -> List[UpliftResult]:
 
     return results
 
-def get_uplift_for_promotion(promotion_id: int) -> UpliftResult:
+def get_uplift_for_promotion(promotion_id: int) ->list[UpliftResult]:
     session = SessionLocal()
     try:
         result = compute_uplift(session, product_id=promotion_id)
