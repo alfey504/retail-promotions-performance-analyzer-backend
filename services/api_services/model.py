@@ -78,6 +78,7 @@ class Sale(BaseModel):
     regular_price: float = Field(gt=0)
     final_price: float = Field(gt=0)
     customer_id: Optional[int] = None 
+    quantity: int = Field(gt=0)
     sale_date: date
 
  

@@ -114,7 +114,7 @@ class FullfillmentHistory(Base):
     sku_id: Mapped[int] = mapped_column(
         ForeignKey("skus.sku_id"), nullable=False, index=True
     )
-    fullfillment_date: Mapped[date] = mapped_column(nullabe=False)
+    fullfillment_date: Mapped[date] = mapped_column(nullable=False)
     quantity_received: Mapped[int] = mapped_column(nullable=False)
  
     sku: Mapped["Sku"] = relationship(back_populates="fulfillment_events")
@@ -143,6 +143,7 @@ class Sale(Base):
     sale_date: Mapped[date] = mapped_column(nullable=False)
  
     sku: Mapped["Sku"] = relationship(back_populates="sales")
+    quantity: Mapped[int] = mapped_column(nullable=False)
     promotion: Mapped[Optional["Promotion"]] = relationship(back_populates="sales")
     customer: Mapped[Optional["Customer"]] = relationship(back_populates="sales")
  

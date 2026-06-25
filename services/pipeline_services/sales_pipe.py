@@ -1,5 +1,5 @@
 from  services.api_services.sales_api import get_all_sales
-from  services.db_services.models import Sale, SkuSale, BundleSale, SalePromotion
+from  services.db_services.models import Sale
 from  services.db_services.promotions_db import add_promotions
 
 
@@ -15,6 +15,8 @@ def pipe_sales():
                 final_price = sale.final_price,
                 promotion_id = sale.promotion_id,
                 sku_id = sale.sku_id,
+                regular_price = sale.regular_price,
+                quantity = sale.quantity,
             )
             sales_db.append(sale_db)
             

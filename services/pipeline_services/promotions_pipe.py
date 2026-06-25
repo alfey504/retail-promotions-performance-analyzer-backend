@@ -1,5 +1,5 @@
 from  services.api_services.promotions_api import get_promotions
-from  services.db_services.models import Promotion, PromotionSku, PromotionBundle
+from  services.db_services.models import Promotion, PromotionSku
 from  services.db_services.promotions_db import add_promotions
 
 
@@ -17,7 +17,7 @@ def pipe_promotions():
                 end_date =  promotion.end_date,
             )
             
-            for sku_id in promotion.target_sku_ids:
+            for sku_id in promotion.target_skus:
                 promotion_db.sku_links.append(
                     PromotionSku(sku_id=sku_id)
                 )
