@@ -1,6 +1,6 @@
-from api_services.product_api import get_products
-from db_services.product_db import add_products
-from db_services.models import Product
+from  services.api_services.product_api import get_products
+from  services.db_services.product_db import add_products
+from  services.db_services.models import Product
 
 def pipe_product():
     try:

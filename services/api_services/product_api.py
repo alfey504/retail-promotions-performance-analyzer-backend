@@ -1,5 +1,5 @@
 import httpx
-from api_services.model import Product, APIResponse
+from services.api_services.model import Product, APIResponse
 
 def get_products() -> list[Product]:
     try:

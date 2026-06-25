@@ -1,6 +1,6 @@
 import httpx
-from api_services.model import SKU, APIResponse
-from api_services.api import get_server_uri
+from services.api_services.model import SKU, APIResponse
+from services.api_services.api import get_server_uri
 
 def get_skus() -> list[SKU]:
     try:

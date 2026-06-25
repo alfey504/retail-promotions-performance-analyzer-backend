@@ -1,6 +1,6 @@
 import httpx
-from api_services.model import Fulfillment, PagedAPIResponse
-from api_services.api import get_server_uri
+from services.api_services.model import Fulfillment, PagedAPIResponse
+from services.api_services.api import get_server_uri
 from typing import Tuple
 
 def get_fulfillment_by_page(page: int) -> Tuple[int, list[Fulfillment]]:

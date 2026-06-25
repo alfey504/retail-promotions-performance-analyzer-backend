@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db_services.models import Base
+from  services.db_services.models import Base
 import os 
 
 DATABASE_URL = os.getenv("DB_CONN")

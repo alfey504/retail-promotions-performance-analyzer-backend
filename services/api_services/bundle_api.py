@@ -1,6 +1,6 @@
 import httpx
-from api_services.model import Bundle, APIResponse
-from api_services.api import get_server_uri
+from services.api_services.model import Bundle, APIResponse
+from services.api_services.api import get_server_uri
 
 def get_bundles() -> list[Bundle]:
     try:

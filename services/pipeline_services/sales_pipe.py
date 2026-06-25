@@ -1,6 +1,6 @@
-from api_services.sales_api import get_all_sales
-from db_services.models import Sale, SkuSale, BundleSale, SalePromotion
-from db_services.promotions_db import add_promotions
+from  services.api_services.sales_api import get_all_sales
+from  services.db_services.models import Sale, SkuSale, BundleSale, SalePromotion
+from  services.db_services.promotions_db import add_promotions
 
 
 def pipe_sales():

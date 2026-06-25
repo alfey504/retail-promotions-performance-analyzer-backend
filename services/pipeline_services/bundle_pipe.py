@@ -1,6 +1,6 @@
-from api_services.bundle_api import get_bundles
-from db_services.models import Bundle, BundleSku
-from db_services.bundle_db import add_bundles
+from  services.api_services.bundle_api import get_bundles
+from  services.db_services.models import Bundle, BundleSku
+from  services.db_services.bundle_db import add_bundles
 
 
 def pipe_bundle():

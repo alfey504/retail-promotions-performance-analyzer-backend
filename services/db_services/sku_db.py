@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import Sku
+from  services.db_services.session import SessionLocal
+from  services.db_services.models import Sku
 
 def add_skus(skus: list[Sku]):
     session = SessionLocal()

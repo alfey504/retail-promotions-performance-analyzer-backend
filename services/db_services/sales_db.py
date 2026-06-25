@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import Sale
+from  services.db_services.session import SessionLocal
+from  services.db_services.models import Sale
 
 def add_sales(sales: list[Sale]):
     session = SessionLocal()

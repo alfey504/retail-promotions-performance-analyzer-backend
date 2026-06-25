@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import Promotion
+from  services.db_services.session import SessionLocal
+from  services.db_services.models import Promotion
 
 def add_promotions(promtions: list[Promotion]):
     session = SessionLocal()

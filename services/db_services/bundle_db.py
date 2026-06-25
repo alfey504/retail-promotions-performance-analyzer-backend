@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import Bundle, BundleSku
+from services.db_services.session import SessionLocal
+from services.db_services.models import Bundle, BundleSku
 
 def add_bundles(bundles: list[Bundle]):
     session = SessionLocal()

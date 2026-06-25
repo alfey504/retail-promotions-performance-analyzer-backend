@@ -1,6 +1,6 @@
-from api_services.customer_api import get_customers
-from db_services.customer_db import add_customers
-from db_services.models import Customer
+from  services.api_services.customer_api import get_customers
+from  services.db_services.customer_db import add_customers
+from  services.db_services.models import Customer
 
 def pipe_customers():
     try:

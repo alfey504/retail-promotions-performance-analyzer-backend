@@ -1,5 +1,5 @@
 import httpx
-from api_services.model import Promotion, APIResponse
+from services.api_services.model import Promotion, APIResponse
 
 def get_promotions() -> list[Promotion]:
     try:

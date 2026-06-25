@@ -1,6 +1,6 @@
-from api_services.promotions_api import get_promotions
-from db_services.models import Promotion, PromotionSku, PromotionBundle
-from db_services.promotions_db import add_promotions
+from  services.api_services.promotions_api import get_promotions
+from  services.db_services.models import Promotion, PromotionSku, PromotionBundle
+from  services.db_services.promotions_db import add_promotions
 
 
 def pipe_promotions():

@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import FulfillmentHistory
+from  services.db_services.session import SessionLocal
+from  services.db_services.models import FulfillmentHistory
 
 def add_fulfillments(fulfillments: list[FulfillmentHistory]):
     session = SessionLocal()

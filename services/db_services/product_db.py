@@ -1,5 +1,5 @@
-from db_services.session import SessionLocal
-from db_services.models import Product
+from  services.db_services.session import SessionLocal
+from  services.db_services.models import Product
 from sqlalchemy import select
 
 def add_product(product: Product):
