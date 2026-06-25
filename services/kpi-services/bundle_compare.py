@@ -348,6 +348,8 @@ def _build_agent_summary(bundle_results: list[dict]) -> dict:
         )
 
     top = max(bundle_results, key=lambda b: b["bundle_channel"]["gross_revenue"], default=None)
+    if top == None:
+        raise Exception("failed to get maximum from bundle results , (max function returned None)")
     overall = (
         "No bundle sales data available." if not bundle_results
         else (
