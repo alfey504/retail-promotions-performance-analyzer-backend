@@ -7,6 +7,7 @@ from typing import List
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+from services.db_services.session import SessionLocal
 
 # Import your models -- adjust the import path to wherever models.py lives.
 from services.db_services.models import (
@@ -89,10 +90,12 @@ def _promo_ids_for_skus(session: Session, sku_ids: List[int]) -> List[int]:
         .distinct()
     ).scalars().all()
 
-    bundle_promos = []
+    bundle_promos: List[int] = []
     if bundle_ids:
         bundle_promos = session.execute(
-            select(PromotionBundle.promotion_id).where(PromotionBundle.bundle_id.in_(list(bundle_ids))).distinct()
+            select(PromotionBundle.promotion_id)
+            .where(PromotionBundle.bundle_id.in_(list(bundle_ids)))
+            .distinct()
         ).scalars().all()
 
     return list(set(list(direct) + list(bundle_promos)))
@@ -248,4 +251,16 @@ def compute_uplift(session: Session, product_id: int) -> List[UpliftResult]:
         )
 
     return results
+
+def get_uplift_for_promotion(promotion_id: int) -> UpliftResult:
+    session = SessionLocal()
+    try:
+        result = compute_uplift(session, product_id=promotion_id)
+        return result
+    except Exception as e:
+        print(f"Error computing uplift for promotion {promotion_id}: {e}")
+        raise e
+    finally:
+        session.close()
+    
 
