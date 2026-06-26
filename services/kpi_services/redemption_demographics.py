@@ -21,7 +21,7 @@ class RedemptionDemographics:
         self.customer_base_under_25_share = customer_base_under_25_share
         self.over_indexed_under_25 = over_indexed_under_25
 
-
+#function currently only check under 25 as the demogrphics TODO: Update it to add more demographics
 def get_redemption_demographics(promotion_id: int) -> RedemptionDemographics:
     session = SessionLocal()
     try:
