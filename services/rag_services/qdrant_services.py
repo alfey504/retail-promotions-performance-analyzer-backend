@@ -11,7 +11,7 @@ from qdrant_client.models import (
     Fusion
 )
 from fastembed import SparseTextEmbedding, SparseEmbedding
-from services.rag_services.embedding_services import embedd_text, sparse_embedd_text, embed_sparse
+from services.rag_services.embedding_services import embed_text, sparse_embed_text, embed_sparse
 
 import os
 import uuid
@@ -65,37 +65,43 @@ def upsert(client: QdrantClient, chunks: list[dict]):
 
 def load_to_qdrant(chunks: list[dict]):
     client = get_qdrant_client()
+    if client is None:
+        raise Exception("unable to fetch qdrant_client")
     ensure_collection(client=client, dense_dim=DENSE_DIM)
     sparse_chunks = embed_sparse(chunks=chunks)
     upsert(client, sparse_chunks)
 
-def search_query(query: str, top_k: int=5, prefetch_liimit:int = 20):
+def search_query(query: str, top_k: int=5, prefetch_limit:int = 20):
     client = get_qdrant_client()
-    embedded_query = embedd_text(query)
+    if client is None:
+        raise Exception("failed to fetch Qdrant Client")
+    embedded_query = embed_text(query)
     print(len(embedded_query))
-    sparse_embedd = sparse_embedd_text(query)
+    sparse_embed = sparse_embed_text(query)
 
-    reuslt = client.query_points(
+    query_results = client.query_points(
         collection_name=COLLECTION_NAME,
         prefetch=[
-            Prefetch(query=embedded_query, using="dense", limit=prefetch_liimit),
+            Prefetch(query=embedded_query, using="dense", limit=prefetch_limit),
             Prefetch(
                 query=SparseVector(
-                    indices=sparse_embedd.indices.tolist(), 
-                    values=sparse_embedd.values.tolist(),
+                    indices=sparse_embed.indices.tolist(), 
+                    values=sparse_embed.values.tolist(),
                 ),
                 using="bm25",
-                limit=prefetch_liimit,
+                limit=prefetch_limit,
             ),
         ],
         query=FusionQuery(fusion=Fusion.RRF),
         limit=top_k,
     ).points
     extracted_texts = []
-    for r in reuslt:
-        print(f"score={r.score:.3f}  {r.payload.get('promotion_name', r.payload.get('chunk_id'))}")
-        print(" ", r.payload["text"][:160], "...")
-        extracted_texts.append(r.payload["text"])
+    for query_result in query_results:
+        if (query_result is None) or (query_result.payload is None) :
+            raise Exception("vector db query returned None")
+        print(f"score={query_result.score:.3f}  {query_result.payload.get('promotion_name', query_result.payload.get('chunk_id'))}")
+        print(" ", query_result.payload["text"][:160], "...")
+        extracted_texts.append(query_result.payload["text"])
     return extracted_texts
 
     

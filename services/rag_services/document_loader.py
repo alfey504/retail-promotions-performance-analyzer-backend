@@ -1,4 +1,5 @@
 from pypdf import PdfReader
+from typing import Tuple
 
 DOC_RUNNING_HEADER = "Promotion Profiles" 
 DOCUMENT_PATH = "documents/promotion_profiles.pdf"
@@ -18,7 +19,7 @@ def load_pdf() -> str:
     ]
     return "\n".join(clean_text) 
 
-def parse_promotion_details(line: str) -> list[str] | None:
+def parse_promotion_details(line: str) -> Tuple[int, str, str, str] | None:
     # Promotion ID 10 · Percentage Off · 2025-11-05 to 2025-11-20
     if not line.startswith("Promotion ID "):
         return None
@@ -27,15 +28,15 @@ def parse_promotion_details(line: str) -> list[str] | None:
     promotion_data = rest.split(" · ")
     if len(promotion_data) != 3:
         return None
-    promo_id, disc_type, timespan = promotion_data 
+    promo_id, disc_type, time_span = promotion_data 
 
-    if " to " not in timespan:
+    if " to " not in time_span:
         return None
     
     if not promo_id.isdigit():
         return None
     
-    star_date, end_date = timespan.split(" to ")
+    star_date, end_date = time_span.split(" to ")
     return int(promo_id), disc_type.strip(), star_date.strip(), end_date.strip()
 
 def chunk_by_heading(doc: str) -> list[dict]:
@@ -74,7 +75,7 @@ def chunk_by_heading(doc: str) -> list[dict]:
             "meta_data": {
                 "promo_id": promo_id,
                 "promo_title": title,
-                "prmoo_type": promo_type,
+                "promo_type": promo_type,
                 "promo_start_date": start_date,
                 "promo_end_date": end_date
             }
@@ -84,5 +85,5 @@ def chunk_by_heading(doc: str) -> list[dict]:
 
 def load_document_as_chunks() -> list[dict]:
     docs = load_pdf()
-    chunks = chunk_by_heading(docs)
+    return chunk_by_heading(docs)
     

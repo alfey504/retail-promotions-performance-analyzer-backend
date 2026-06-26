@@ -1,0 +1,9 @@
+from tools.kpi_tools.discount_efficiency_tool import discount_efficiency_tool
+from tools.kpi_tools.incremental_uplift_calculator_tool import incremental_sales_uplift_tool
+from tools.kpi_tools.post_promo_dip_tool import post_promo_dip_tool
+from tools.kpi_tools.redemption_demographic_tool import redemption_demographics_tool
+from tools.kpi_tools.stockout_tracer_tool import stockout_inventory_trace_tool
+
+kpi_tools = [discount_efficiency_tool, incremental_sales_uplift_tool, post_promo_dip_tool, redemption_demographics_tool, stockout_inventory_trace_tool]
+
+tools = [*kpi_tools]
