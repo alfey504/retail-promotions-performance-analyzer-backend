@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from sqlalchemy import func, select
-from services.db_services.models import FullfillmentHistory, Sale
+from services.db_services.models import FulfillmentHistory, Sale
 from services.db_services.session import SessionLocal
 from services.db_services.promotions_db import get_promotion_by_id
 
@@ -53,14 +53,14 @@ def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
         sku_traces = []
         for sku_id in sku_ids:
             received_before = session.execute(
-                select(func.sum(FullfillmentHistory.quantity_received)).where(
-                    FullfillmentHistory.sku_id == sku_id,
-                    FullfillmentHistory.fullfillment_date < promotion.start_date,
+                select(func.sum(FulfillmentHistory.quantity_received)).where(
+                    FulfillmentHistory.sku_id == sku_id,
+                    FulfillmentHistory.fulfillment_date < promotion.start_date,
                 )
             ).scalar() or 0
 
             sold_before = session.execute(
-                select(func.count(Sale.sales_id)).where(
+                select(func.sum(Sale.quantity)).where(
                     Sale.sku_id == sku_id,
                     Sale.sale_date < promotion.start_date,
                 )
@@ -96,9 +96,9 @@ def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
                 missed_units_estimate = round(max(0.0, projected_units - post_stockout_units), 1)
 
             next_restock_date = session.execute(
-                select(func.min(FullfillmentHistory.fullfillment_date)).where(
-                    FullfillmentHistory.sku_id == sku_id,
-                    FullfillmentHistory.fullfillment_date > promotion.end_date,
+                select(func.min(FulfillmentHistory.fulfillment_date)).where(
+                    FulfillmentHistory.sku_id == sku_id,
+                    FulfillmentHistory.fulfillment_date > promotion.end_date,
                 )
             ).scalar()
 

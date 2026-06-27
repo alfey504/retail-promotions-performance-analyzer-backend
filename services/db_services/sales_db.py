@@ -11,3 +11,4 @@ def add_sales(sales: list[Sale]):
         raise e
     finally:
         session.close()
+

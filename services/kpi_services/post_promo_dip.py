@@ -37,7 +37,7 @@ def get_post_promo_dip(promotion_id: int) -> PostPromoDip:
         post_end_date = post_start_date + promotion_duration
 
         baseline_units_sold = session.execute(
-            select(func.count(Sale.sales_id)).where(
+            select(func.sum(Sale.quantity)).where(
                 Sale.sale_date >= baseline_start_date,
                 Sale.sale_date <= baseline_end_date,
                 Sale.sku_id.in_(sku_ids),
@@ -45,7 +45,7 @@ def get_post_promo_dip(promotion_id: int) -> PostPromoDip:
         ).scalar() or 0
 
         post_period_units_sold = session.execute(
-            select(func.count(Sale.sales_id)).where(
+            select(func.sum(Sale.quantity)).where(
                 Sale.sale_date >= post_start_date,
                 Sale.sale_date <= post_end_date,
                 Sale.sku_id.in_(sku_ids),

@@ -18,6 +18,8 @@ def get_promotion_by_id(promotion_id: int) -> Promotion:
     try:
         statement = select(Promotion).where(Promotion.promotion_id == promotion_id)
         result = session.scalar(statement)
+        if result is None:
+            raise Exception(f"could'nt find promotion with promotion_id : {promotion_id}")
         _ = result.sku_links
         return result
     except Exception as e:

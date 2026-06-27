@@ -43,7 +43,7 @@ class Sku(Base):
  
     product: Mapped["Product"] = relationship(back_populates="skus")
     promotion_links: Mapped[List["PromotionSku"]] = relationship(back_populates="sku")
-    fulfillment_events: Mapped[List["FullfillmentHistory"]] = relationship(back_populates="sku")
+    fulfillment_events: Mapped[List["FulfillmentHistory"]] = relationship(back_populates="sku")
     sales: Mapped[List["Sale"]] = relationship(back_populates="sku")
  
     def __repr__(self) -> str:
@@ -107,22 +107,22 @@ class PromotionSku(Base):
  
  
  
-class FullfillmentHistory(Base):
-    __tablename__ = "fullfillment_history"
+class FulfillmentHistory(Base):
+    __tablename__ = "fulfillment_history"
  
-    fullfillment_id: Mapped[int] = mapped_column(primary_key=True)
+    fulfillment_id: Mapped[int] = mapped_column(primary_key=True)
     sku_id: Mapped[int] = mapped_column(
         ForeignKey("skus.sku_id"), nullable=False, index=True
     )
-    fullfillment_date: Mapped[date] = mapped_column(nullable=False)
+    fulfillment_date: Mapped[date] = mapped_column(nullable=False)
     quantity_received: Mapped[int] = mapped_column(nullable=False)
  
     sku: Mapped["Sku"] = relationship(back_populates="fulfillment_events")
  
     def __repr__(self) -> str:
         return (
-            f"<FullfillmentHistory sku={self.sku_id} "
-            f"date={self.fullfillment_date} qty={self.quantity_received}>"
+            f"<FulfillmentHistory sku={self.sku_id} "
+            f"date={self.fulfillment_date} qty={self.quantity_received}>"
         )
  
 class Sale(Base):

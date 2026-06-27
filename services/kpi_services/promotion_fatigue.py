@@ -45,7 +45,7 @@ def get_promotion_fatigue(promotion_ids: list[int]) -> PromotionFatigue:
             baseline_start_date = baseline_end_date - promotion_duration
 
             baseline_units_sold = session.execute(
-                select(func.count(Sale.sales_id)).where(
+                select(func.sum(Sale.quantity)).where(
                     Sale.sale_date >= baseline_start_date,
                     Sale.sale_date <= baseline_end_date,
                     Sale.sku_id.in_(sku_ids),

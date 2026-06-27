@@ -37,7 +37,7 @@ def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:
         statement = select(
             func.sum(Sale.regular_price), func.sum(Sale.final_price)
         ).where(Sale.promotion_id == promotion_id)
-        total_regular_price, promotion_revenue = session.execute(statement).tuples().first()
+        total_regular_price, promotion_revenue = session.execute(statement).tuples().first() or (None, None)
         total_regular_price = total_regular_price or 0.0
         promotion_revenue = promotion_revenue or 0.0
         total_discount_given = total_regular_price - promotion_revenue

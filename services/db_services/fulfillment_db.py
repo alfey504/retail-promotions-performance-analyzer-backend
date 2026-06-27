@@ -1,7 +1,7 @@
 from  services.db_services.session import SessionLocal
-from  services.db_services.models import FullfillmentHistory
+from  services.db_services.models import FulfillmentHistory
 
-def add_fulfillments(fulfillments: list[FullfillmentHistory]):
+def add_fulfillments(fulfillments: list[FulfillmentHistory]):
     session = SessionLocal()
 
     try:
@@ -11,3 +11,4 @@ def add_fulfillments(fulfillments: list[FullfillmentHistory]):
         raise e
     finally:
         session.close()
+

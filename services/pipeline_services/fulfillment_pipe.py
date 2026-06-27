@@ -1,13 +1,13 @@
 from  services.api_services.fulfillment_api import get_all_fulfillment_data
 from  services.db_services.fulfillment_db import add_fulfillments
-from  services.db_services.models import FullfillmentHistory
+from  services.db_services.models import FulfillmentHistory
 
 def pipe_fulfillment():
     try:
         fulfillments = get_all_fulfillment_data()
-        fulfillments_db = list[FullfillmentHistory]()
+        fulfillments_db = list[FulfillmentHistory]()
         for fulfillment in fulfillments:
-            fulfillment_db = FullfillmentHistory(
+            fulfillment_db = FulfillmentHistory(
                  fullfillment_id = fulfillment.fullfillment_id,
                  sku_id = fulfillment.sku_id,
                  fullfillment_date = fulfillment.fullfillment_date,

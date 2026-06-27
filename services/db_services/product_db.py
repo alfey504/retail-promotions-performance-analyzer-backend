@@ -30,7 +30,7 @@ def get_product_by_id(product_id: int) -> Product:
     try:
         product = session.get(Product, product_id)
         if product is None:
-            raise Exception(f"Coudn't find product with product_id {product_id}")
+            raise Exception(f"could'nt find product with product_id : {product_id}")
         return product
     except Exception as e:
         raise e
