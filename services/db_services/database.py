@@ -1,7 +1,7 @@
 from services.db_services.session import engine, SessionLocal
 from sqlalchemy import inspect
 from sqlalchemy import text
-
+from sqlalchemy.orm import DeclarativeBase
 
 def describe_schema_for_agent() -> str:
     insp = inspect(engine)
@@ -57,3 +57,14 @@ def run_sql_query(sql: str, max_rows: int = 200) -> dict:
         "rows": [dict(zip(columns, row)) for row in rows],
         "truncated": len(rows) == max_rows,
     }
+
+
+def add_to_db(models : list[DeclarativeBase]):
+    session = SessionLocal()
+    try:
+        session.add_all(models)
+        session.commit()
+    except Exception as e:
+        raise e
+    finally:
+        session.close()

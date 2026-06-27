@@ -3,17 +3,15 @@ from __future__ import annotations
 from datetime import date
 
 from sqlalchemy import ForeignKey, Numeric
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from services.kpi_services.incremental_uplift import Uplift
-from services.kpi_services.discount_efficiency import DiscountEfficiency
-from services.kpi_services.post_promo_dip import PostPromoDip
-from services.kpi_services.redemption_demographics import RedemptionDemographics
-from services.kpi_services.stockout_tracer import StockoutTrace, SkuInventoryTrace
+from services.db_services.session import Base 
 
-
-class Base(DeclarativeBase):
-    pass
+from services.kpi_services.kpi_calculators.uplift_calculator import Uplift
+from services.kpi_services.kpi_calculators.discount_efficiency_calculator import DiscountEfficiency
+from services.kpi_services.kpi_calculators.post_promo_dip_calculator import PostPromoDip
+from services.kpi_services.kpi_calculators.redemption_demographics_calculator import RedemptionDemographics
+from services.kpi_services.kpi_calculators.stockout_calculator import StockoutTrace, SkuInventoryTrace
 
 
 class UpliftResult(Base):

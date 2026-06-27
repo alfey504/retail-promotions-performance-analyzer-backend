@@ -2,7 +2,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.redemption_demographics import RedemptionDemographics, get_redemption_demographics
+from services.kpi_services.kpi_db.get_kpis import RedemptionDemographics, get_redemption_demographics
 
 
 class RedemptionDemographicsInput(BaseModel):

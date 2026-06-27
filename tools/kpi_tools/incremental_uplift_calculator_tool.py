@@ -1,5 +1,5 @@
 
-from services.kpi_services.incremental_uplift import get_incremental_sales_uplift, Uplift
+from services.kpi_services.kpi_db.get_kpis import get_incremental_sales_uplift, Uplift
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 

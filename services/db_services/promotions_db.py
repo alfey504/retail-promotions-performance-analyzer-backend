@@ -27,4 +27,11 @@ def get_promotion_by_id(promotion_id: int) -> Promotion:
     finally:
         session.close()
 
-    
+def get_all_promotions() -> list[Promotion]:
+    session = SessionLocal()
+    try:
+        statement = select(Promotion)
+        promotion = session.scalars(statement).all()
+        return list(promotion)
+    except Exception as e:
+        raise e

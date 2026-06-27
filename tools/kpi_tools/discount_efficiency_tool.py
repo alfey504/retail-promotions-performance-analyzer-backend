@@ -2,7 +2,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.kpi_calculators.discount_efficiency_calculator import DiscountEfficiency, get_discount_efficiency
+from services.kpi_services.kpi_db.get_kpis import DiscountEfficiency, get_discount_efficiency
 
 
 class DiscountEfficiencyInput(BaseModel):

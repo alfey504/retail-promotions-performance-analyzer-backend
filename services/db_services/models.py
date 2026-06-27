@@ -4,13 +4,10 @@ from datetime import date
 from typing import List, Optional
  
 from sqlalchemy import ForeignKey, Numeric, String, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
- 
- 
-class Base(DeclarativeBase):
-    pass
- 
- 
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from services.db_services.session import Base 
+
 class Product(Base):
     __tablename__ = "products"
  

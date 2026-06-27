@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.stockout_tracer import StockoutTrace, get_stockout_inventory_trace
+from services.kpi_services.kpi_db.get_kpis import StockoutTrace, get_stockout_inventory_trace
 
 
 class StockoutTracerInput(BaseModel):
