@@ -1,5 +1,5 @@
 
-from services.kpi_services.kpi_db.get_kpis import get_incremental_sales_uplift, Uplift
+from services.kpi_services.kpi_calculators.uplift_calculator import get_incremental_uplift, Uplift
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
@@ -67,5 +67,5 @@ def incremental_sales_uplift_tool(promotion_id: int):
     immediately before it started. Use this to answer whether a promotion
     actually lifted sales, whether it was a clean win, or whether it increased
     volume while losing revenue to discounting."""
-    uplift = get_incremental_sales_uplift(promotion_id)
+    uplift = get_incremental_uplift(promotion_id)
     return _format_uplift(uplift), uplift

@@ -4,25 +4,7 @@ from sqlalchemy import func, select
 from services.db_services.session import SessionLocal
 from services.db_services.models import Sale
 from services.db_services.promotions_db import get_promotion_by_id
-
-
-class DiscountEfficiency:
-
-    def __init__(
-        self,
-        promotion_id: int,
-        baseline_revenue: float,
-        promotion_revenue: float,
-        incremental_revenue: float,
-        total_discount_given: float,
-        discount_efficiency_ratio: float | None,
-    ):
-        self.promotion_id = promotion_id
-        self.baseline_revenue = baseline_revenue
-        self.promotion_revenue = promotion_revenue
-        self.incremental_revenue = incremental_revenue
-        self.total_discount_given = total_discount_given
-        self.discount_efficiency_ratio = discount_efficiency_ratio
+from services.kpi_services.kpi_calculators.models import DiscountEfficiency
 
 
 def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:

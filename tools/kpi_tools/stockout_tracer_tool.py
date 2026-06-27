@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.kpi_db.get_kpis import StockoutTrace, get_stockout_inventory_trace
+from services.kpi_services.kpi_calculators.stockout_calculator import StockoutTrace, get_stockout_trace
 
 
 class StockoutTracerInput(BaseModel):
@@ -25,7 +25,7 @@ def _format_stockout_trace(trace: StockoutTrace) -> str:
             restock = t.next_restock_date.isoformat() if t.next_restock_date else "an unrecorded date"
             sentences.append(
                 f"SKU {t.sku_id} opened with {t.opening_stock} units, sold {t.units_sold} during "
-                f"the window, and stocked out on {t.stockout_date.isoformat()} (next restock: "
+                f"the window, and stocked out on {t.stockout_date.isoformat() if t.stockout_date is not None else "unavailable"} (next restock: "
                 f"{restock}, an estimated {t.missed_units_estimate} unit(s) likely missed)"
             )
         parts.append("; ".join(sentences) + ".")
@@ -68,5 +68,5 @@ def stockout_inventory_trace_tool(promotion_id: int):
     missed as a result. Use this when asked whether a promotion's results
     were limited by supply, or whether it 'would have done better' with more
     stock."""
-    trace = get_stockout_inventory_trace(promotion_id)
+    trace = get_stockout_trace(promotion_id)
     return _format_stockout_trace(trace), trace

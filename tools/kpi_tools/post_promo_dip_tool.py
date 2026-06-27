@@ -2,7 +2,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.kpi_db.get_kpis import PostPromoDip, get_post_promo_dip
+from services.kpi_services.kpi_calculators.post_promo_dip_calculator import PostPromoDip, get_post_promo_dip
 
 
 class PostPromoDipInput(BaseModel):

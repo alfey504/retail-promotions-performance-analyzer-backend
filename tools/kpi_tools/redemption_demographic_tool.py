@@ -2,7 +2,7 @@
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from services.kpi_services.kpi_db.get_kpis import RedemptionDemographics, get_redemption_demographics
+from services.kpi_services.kpi_calculators.redemption_demographics_calculator import RedemptionDemographics, get_redemption_demographic
 
 
 class RedemptionDemographicsInput(BaseModel):
@@ -48,5 +48,5 @@ def redemption_demographics_tool(promotion_id: int):
     the under-25 share of the overall customer base. Use this to answer
     whether a promotion skewed toward a particular age group rather than
     redeeming roughly in line with the customer base as a whole."""
-    result = get_redemption_demographics(promotion_id)
+    result = get_redemption_demographic(promotion_id)
     return _format_redemption_demographics(result), result

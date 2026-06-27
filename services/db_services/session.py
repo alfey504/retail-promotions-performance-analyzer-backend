@@ -9,7 +9,7 @@ DATABASE_URL = os.getenv("DB_CONN")
 if DATABASE_URL is None:
     raise Exception("DB_CONN is not set on the environment varialbes")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -20,6 +20,4 @@ SessionLocal = sessionmaker(
 
 def init_db():
     import services.db_services.models
-    import services.kpi_services.kpi_db.models
-
     Base.metadata.create_all(bind=engine)
