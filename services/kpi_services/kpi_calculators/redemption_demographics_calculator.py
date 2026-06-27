@@ -67,13 +67,3 @@ def redemption_demographics_calculator(promotion: Promotion) -> RedemptionDemogr
         session.close()
 
 
-def get_redemption_demographics(promotion_id: int) -> RedemptionDemographics:
-    session = SessionLocal()
-    try:
-        promotion = get_promotion_by_id(promotion_id)
-        redemption_demographics = redemption_demographics_calculator(promotion)
-        return redemption_demographics
-    except Exception as e:
-        raise e
-    finally:
-        session.close()

@@ -120,14 +120,3 @@ def stockout_inventory_trace_calculator(promotion: Promotion) -> StockoutTrace:
         raise e
     finally:
         session.close()
-
-def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
-    session = SessionLocal()
-    try:
-        promotion = get_promotion_by_id(promotion_id)
-        stockout_trace = stockout_inventory_trace_calculator(promotion)
-        return stockout_trace
-    except Exception as e:
-        raise e
-    finally:
-        session.close()

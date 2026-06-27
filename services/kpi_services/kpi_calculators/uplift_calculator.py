@@ -85,13 +85,3 @@ def uplift_calculator(promotion: Promotion) -> Uplift:
         session.close()
 
         
-def get_incremental_sales_uplift(promotion_id: int) -> Uplift:
-    session = SessionLocal()
-    try:
-        promotion = get_promotion_by_id(promotion_id)
-        uplift = uplift_calculator(promotion)
-        return uplift
-    except Exception as e:
-        raise e
-    finally:
-        session.close()

@@ -65,11 +65,3 @@ def discount_efficiency_calculator(promotion: Promotion) -> DiscountEfficiency:
     finally:
         session.close()
 
-def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:
-    session = SessionLocal()
-    try:
-        promotion = get_promotion_by_id(promotion_id)
-        discount_efficiency = discount_efficiency_calculator(promotion)
-        return discount_efficiency
-    finally:
-        session.close()

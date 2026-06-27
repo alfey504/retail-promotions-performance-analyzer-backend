@@ -68,14 +68,3 @@ def post_promo_dip_calculator(promotion: Promotion) -> PostPromoDip:
         raise e
     finally:
         session.close()
-
-def get_post_promo_dip(promotion_id: int) -> PostPromoDip:
-    session = SessionLocal()
-    try:
-        promotion = get_promotion_by_id(promotion_id)
-        post_promo_dip = post_promo_dip_calculator(promotion)
-        return post_promo_dip
-    except Exception as e:
-        raise e
-    finally:
-        session.close()
