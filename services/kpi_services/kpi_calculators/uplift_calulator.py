@@ -1,6 +1,6 @@
 from services.db_services.session import SessionLocal
 from services.db_services.promotions_db import get_promotion_by_id
-from services.db_services.models import Sale
+from services.db_services.models import Sale, Promotion
 from sqlalchemy import func, select
 from datetime import timedelta
 
@@ -39,13 +39,12 @@ class Uplift:
         string += f"Sales Up Revenue Down -> {self.sales_up_revenue_down}\n"
         string += f"clean win -> {self.clean_win}\n"
         return string
-        
-def get_incremental_sales_uplift(promotion_id: int) -> Uplift:
+
+def uplift_calculator(promotion: Promotion) -> Uplift:
     session = SessionLocal()
     try:
-        promotion = get_promotion_by_id(promotion_id)
         sku_ids = [sku_link.sku_id for sku_link in promotion.sku_links]
-        statement = select(func.sum(Sale.quantity), func.sum(Sale.final_price)).where(Sale.promotion_id == promotion_id)
+        statement = select(func.sum(Sale.quantity), func.sum(Sale.final_price)).where(Sale.promotion_id == promotion.promotion_id)
         promotion_units_sold, promotion_revenue = session.execute(statement).tuples().first() or (None, None)
         if ((promotion_units_sold) is None or (promotion_revenue is None)):
             raise Exception("promotion sales query returned None")
@@ -69,7 +68,7 @@ def get_incremental_sales_uplift(promotion_id: int) -> Uplift:
         clean_win = True if unit_sale_uplift  >0 and revenue_uplift > 0 else False
 
         return Uplift(
-            promotion_id=promotion_id,
+            promotion_id=promotion.promotion_id,
             baseline_units_sold = baseline_units_sold,
             promotion_units_sold = promotion_units_sold,
             baseline_revenue=baseline_revenue,
@@ -80,6 +79,18 @@ def get_incremental_sales_uplift(promotion_id: int) -> Uplift:
             clean_win=clean_win,
         )
 
+    except Exception as e:
+        raise e
+    finally:
+        session.close()
+
+        
+def get_incremental_sales_uplift(promotion_id: int) -> Uplift:
+    session = SessionLocal()
+    try:
+        promotion = get_promotion_by_id(promotion_id)
+        uplift = uplift_calculator(promotion)
+        return uplift
     except Exception as e:
         raise e
     finally:
