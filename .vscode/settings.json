@@ -11,6 +11,7 @@
         "stockout",
         "stockouts",
         "upserted",
-        "vecs"
+        "vecs",
+        "sessionmaker",
     ]
 }

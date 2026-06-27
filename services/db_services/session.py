@@ -1,13 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+import os 
 
 class Base(DeclarativeBase):
     pass
-# from services.db_services.models import Base
-# from services.kpi_services.kpi_db.models import KpiBase
-import os 
-
-
 
 DATABASE_URL = os.getenv("DB_CONN")
 if DATABASE_URL is None:
@@ -23,5 +19,7 @@ SessionLocal = sessionmaker(
 
 
 def init_db():
+    import services.db_services.models
+    import services.kpi_services.kpi_db.models
+
     Base.metadata.create_all(bind=engine)
-    # KpiBase.metadata.create_all(bind=engine)
