@@ -3,9 +3,7 @@ from pydantic import BaseModel, Field
 
 from services.db_services.database import describe_schema_for_agent, run_sql_query
 
-DISPLAY_LIMIT = 20  # rows actually rendered to the agent, independent of the
-                     # database-level max_rows cap inside run_sql_query()
-
+DISPLAY_LIMIT = 20
 
 class DescribeSchemaInput(BaseModel):
     """No parameters -- this tool always returns the full current schema."""
