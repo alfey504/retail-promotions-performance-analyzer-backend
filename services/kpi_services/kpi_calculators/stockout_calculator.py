@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from sqlalchemy import func, select
-from services.db_services.models import FulfillmentHistory, Sale
+from services.db_services.models import FulfillmentHistory, Sale, Promotion
 from services.db_services.session import SessionLocal
 from services.db_services.promotions_db import get_promotion_by_id
 
@@ -42,12 +42,9 @@ class StockoutTrace:
         self.total_missed_units_estimate = total_missed_units_estimate
         self.sku_traces = sku_traces
     
-
-
-def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
+def stockout_inventory_trace_calculator(promotion: Promotion) -> StockoutTrace:
     session = SessionLocal()
     try:
-        promotion = get_promotion_by_id(promotion_id)
         sku_ids = [sku_link.sku_id for sku_link in promotion.sku_links]
 
         sku_traces = []
@@ -114,11 +111,22 @@ def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
             ))
 
         return StockoutTrace(
-            promotion_id=promotion_id,
+            promotion_id=promotion.promotion_id,
             any_stockout=any(t.stockout for t in sku_traces),
             total_missed_units_estimate=round(sum(t.missed_units_estimate for t in sku_traces), 1),
             sku_traces=sku_traces,
         )
+    except Exception as e:
+        raise e
+    finally:
+        session.close()
+
+def get_stockout_inventory_trace(promotion_id: int) -> StockoutTrace:
+    session = SessionLocal()
+    try:
+        promotion = get_promotion_by_id(promotion_id)
+        stockout_trace = stockout_inventory_trace_calculator(promotion)
+        return stockout_trace
     except Exception as e:
         raise e
     finally:

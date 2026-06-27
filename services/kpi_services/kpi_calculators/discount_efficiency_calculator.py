@@ -2,9 +2,8 @@ from datetime import timedelta
 
 from sqlalchemy import func, select
 from services.db_services.session import SessionLocal
-from services.db_services.models import Sale
+from services.db_services.models import Sale, Promotion
 from services.db_services.promotions_db import get_promotion_by_id
-
 
 class DiscountEfficiency:
 
@@ -24,19 +23,13 @@ class DiscountEfficiency:
         self.total_discount_given = total_discount_given
         self.discount_efficiency_ratio = discount_efficiency_ratio
 
-
-def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:
+def discount_efficiency_calculator(promotion: Promotion) -> DiscountEfficiency:
     session = SessionLocal()
     try:
-        promotion = get_promotion_by_id(promotion_id)
         sku_ids = [sku_link.sku_id for sku_link in promotion.sku_links]
-
-        # regular_price and final_price are both stored directly on the row, so
-        # the discount actually given is just their difference -- no need to
-        # re-derive discount_percent or special-case BOGO here.
         statement = select(
             func.sum(Sale.regular_price), func.sum(Sale.final_price)
-        ).where(Sale.promotion_id == promotion_id)
+        ).where(Sale.promotion_id == promotion.promotion_id)
         total_regular_price, promotion_revenue = session.execute(statement).tuples().first() or (None, None)
         total_regular_price = total_regular_price or 0.0
         promotion_revenue = promotion_revenue or 0.0
@@ -62,12 +55,21 @@ def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:
             discount_efficiency_ratio = None
 
         return DiscountEfficiency(
-            promotion_id=promotion_id,
+            promotion_id=promotion.promotion_id,
             baseline_revenue=baseline_revenue,
             promotion_revenue=promotion_revenue,
             incremental_revenue=incremental_revenue,
             total_discount_given=total_discount_given,
             discount_efficiency_ratio=discount_efficiency_ratio,
         )
+    finally:
+        session.close()
+
+def get_discount_efficiency(promotion_id: int) -> DiscountEfficiency:
+    session = SessionLocal()
+    try:
+        promotion = get_promotion_by_id(promotion_id)
+        discount_efficiency = discount_efficiency_calculator(promotion)
+        return discount_efficiency
     finally:
         session.close()
