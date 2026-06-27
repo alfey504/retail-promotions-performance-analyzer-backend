@@ -1,13 +1,3 @@
-"""
-SQLAlchemy models for the six KPI result classes -- fields and types only.
-All columns are NOT NULL (see the conversation for why several of these were
-previously nullable to match real None-returning behavior in the KPI
-functions -- that's no longer reflected here). No string-quoted type
-references anywhere; same-file forward references between StockoutTraceResult
-and SkuInventoryTraceResult stay safely unquoted because of
-`from __future__ import annotations`, and the adapter functions' types are
-real top-level imports instead of deferred string references.
-"""
 from __future__ import annotations
 
 from datetime import date
@@ -25,10 +15,6 @@ from services.kpi_services.stockout_tracer import StockoutTrace, SkuInventoryTra
 class Base(DeclarativeBase):
     pass
 
-
-# =============================================================================
-# Uplift
-# =============================================================================
 
 class UpliftResult(Base):
     __tablename__ = "uplift_results"
@@ -73,9 +59,6 @@ def uplift_from_orm(o: UpliftResult) -> Uplift:
     )
 
 
-# =============================================================================
-# DiscountEfficiency
-# =============================================================================
 
 class DiscountEfficiencyResult(Base):
     __tablename__ = "discount_efficiency_results"
@@ -111,9 +94,6 @@ def discount_efficiency_from_orm(o: DiscountEfficiencyResult) -> DiscountEfficie
     )
 
 
-# =============================================================================
-# PostPromoDip
-# =============================================================================
 
 class PostPromoDipResult(Base):
     __tablename__ = "post_promo_dip_results"
@@ -145,10 +125,6 @@ def post_promo_dip_from_orm(o: PostPromoDipResult) -> PostPromoDip:
         pull_forward_dip=o.pull_forward_dip,
     )
 
-
-# =============================================================================
-# RedemptionDemographics
-# =============================================================================
 
 class RedemptionDemographicsResult(Base):
     __tablename__ = "redemption_demographics_results"
@@ -182,11 +158,6 @@ def redemption_demographics_from_orm(o: RedemptionDemographicsResult) -> Redempt
         customer_base_under_25_share=o.customer_base_under_25_share,
         over_indexed_under_25=o.over_indexed_under_25,
     )
-
-
-# =============================================================================
-# StockoutTrace / SkuInventoryTrace -- parent + child, since sku_traces is a list
-# =============================================================================
 
 class StockoutTraceResult(Base):
     __tablename__ = "stockout_trace_results"
