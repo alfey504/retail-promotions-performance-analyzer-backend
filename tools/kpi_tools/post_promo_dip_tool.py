@@ -1,11 +1,4 @@
-"""
-LangChain tool wrapping get_post_promo_dip (post_promo_dip_kpi.py).
 
-Not executed against a real langchain_core/pydantic install in this
-environment (no network access). _format_post_promo_dip was tested for real
-with plain Python stand-ins covering the dip, no-dip, and None-baseline
-branches before this was written.
-"""
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 

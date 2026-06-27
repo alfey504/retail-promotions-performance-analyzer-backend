@@ -1,14 +1,4 @@
-"""
-LangChain tool wrapping get_discount_efficiency (discount_efficiency_kpi.py).
 
-Not executed against a real langchain_core/pydantic install in this
-environment (no network access). _format_discount_efficiency was tested for
-real with plain Python stand-ins covering the profitable, unprofitable, and
-negative-incremental-revenue branches before this was written -- the negative
-case matters specifically because a naive "$X in incremental revenue" phrasing
-reads badly when X is negative, so the sign is handled explicitly rather than
-just interpolated.
-"""
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 

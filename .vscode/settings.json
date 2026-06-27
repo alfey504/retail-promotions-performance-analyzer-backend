@@ -2,12 +2,15 @@
     "cSpell.words": [
         "autoflush",
         "BOGO",
+        "descs",
         "fastembed",
         "huggingface",
         "Mattifying",
         "Qdrant",
         "skus",
         "stockout",
+        "stockouts",
+        "upserted",
         "vecs"
     ]
 }
