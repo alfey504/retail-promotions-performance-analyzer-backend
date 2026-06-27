@@ -21,10 +21,6 @@ def describe_schema_tool() -> str:
     return describe_schema_for_agent()
 
 
-# ---------------------------------------------------------------------------
-# Tool 2: query execution
-# ---------------------------------------------------------------------------
-
 class ExecuteSqlQueryInput(BaseModel):
     sql: str = Field(
         ...,
