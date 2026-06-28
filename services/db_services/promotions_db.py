@@ -2,11 +2,11 @@ from  services.db_services.session import SessionLocal
 from  services.db_services.models import Promotion
 from  sqlalchemy import select
 
-def add_promotions(promtions: list[Promotion]):
+def add_promotions(promotions: list[Promotion]):
     session = SessionLocal()
 
     try:
-        session.add_all(promtions)
+        session.add_all(promotions)
         session.commit()
     except Exception as e:
         raise e
@@ -35,3 +35,15 @@ def get_all_promotions() -> list[Promotion]:
         return list(promotion)
     except Exception as e:
         raise e
+    
+def get_promotions_as_page(pageNo: int, page_length: int) ->  list[Promotion]:
+    session = SessionLocal()
+    try:
+        statement = select(Promotion).limit(page_length).offset((pageNo-1)* page_length)
+        promotions_db =  session.scalars(statement).all()
+        return list(promotions_db)
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()

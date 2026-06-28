@@ -1,6 +1,6 @@
 from  services.api_services.sales_api import get_all_sales
 from  services.db_services.models import Sale
-from  services.db_services.promotions_db import add_promotions
+from  services.db_services.sales_db import add_sales
 
 
 def pipe_sales():
@@ -19,7 +19,6 @@ def pipe_sales():
                 quantity = sale.quantity,
             )
             sales_db.append(sale_db)
-            
-        add_promotions(sales_db)
+        add_sales(sales_db)
     except Exception as e:
             raise e

@@ -2,18 +2,18 @@ from fastapi import APIRouter, status
 from pydantic import BaseModel
 from api.user_services.verify_user import verify_user
 from api.models.response_models import ResponseModel
-from utils.jwt_utils import create_access_token
+from api.utils.jwt_utils import create_access_token
 from datetime import timedelta 
 
-router = APIRouter
+user_router = APIRouter(prefix="/user")
 
 class UserLogin(BaseModel):
     username: str 
     password: str
 
 
-@router.post(path="/user/login", tags=["user"]) # type: ignore
-def login_user(user_login: UserLogin) -> ResponseModel:
+@user_router.post(path="/login", tags=["user"]) # type: ignore
+async def login_user(user_login: UserLogin) -> ResponseModel:
     try:
         user = verify_user(user_login.username, user_login.password)
         if user is None:
