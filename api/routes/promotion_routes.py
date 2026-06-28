@@ -7,7 +7,7 @@ from api.middleware.auth_middleware import auth_middleware
 promotions_router = APIRouter(tags=["promotions"])
 
 @promotions_router.get("/promotions", tags=["promotions"])
-def get_promotions(page: int=1, user = Depends(auth_middleware)) -> PagedResponseModel:
+async def get_promotions(page: int=1, user = Depends(auth_middleware)) -> PagedResponseModel:
     print(user)
     page_size = 25
     max_page = int (350 / 25)

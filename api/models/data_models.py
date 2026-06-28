@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional
 from services.db_services.models import Promotion
+from datetime import datetime
 
 class PromotionResponse(BaseModel):
     promotion_id: int
@@ -14,4 +15,16 @@ class PromotionResponse(BaseModel):
 
     class Config:
         from_attributes = True
-    
+
+class CreateConversationJSONBody(BaseModel):
+    promotion_id: int
+    promotion_name: str
+
+class ConversationResponse(BaseModel): 
+    conversation_id: int
+    conversation_title: str
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -166,18 +166,23 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     conversation_id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_title: Mapped[str] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), index=True)
-    title: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
+    promotion_id: Mapped[Optional[int]] = mapped_column(nullable=True)
 
+    def __repr__(self) -> str:
+        return f"<Conversation id={self.conversation_id} conversation_name={self.conversation_title}>"
+    
 class Message(Base):
     __tablename__ = "messages"
 
     message_id: Mapped[int] = mapped_column(primary_key=True)
     conversation_id: Mapped[int] = mapped_column(
-        ForeignKey("conversation.conversation_id"),
+        ForeignKey("conversations.conversation_id"),
         index = True,
     )
     role: Mapped[str] = mapped_column(nullable=False)
     content: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
+    
