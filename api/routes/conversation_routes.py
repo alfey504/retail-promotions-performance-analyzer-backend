@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, WebSocket, WebSocketDisconnect
 from api.middleware.auth_middleware import auth_middleware
 from api.models.data_models import CreateConversationJSONBody, ConversationResponse
 from api.models.response_models import ResponseModel
 from datetime import datetime
+from api.utils.jwt_utils import verify_access_token
 
 from services.db_services.conversation_db import create_conversation
 
@@ -39,4 +40,48 @@ async def create_new_conversation(
             data = None 
         )
 
-        
+@conversation_router.websocket("/ws/conversation/{conversation_id}/{promotion_id}")
+async def conversation_socket(
+    web_socket: WebSocket,
+    conversation_id: str,
+    promotion_id: str,
+):
+    token = web_socket.query_params.get("token")
+
+    if not token:
+        await web_socket.close(code=1008)
+        return
+
+    user = verify_access_token(token)
+    if user is None:
+        await web_socket.close(code=1008)
+        return
+
+    
+    await web_socket.accept()
+    user = {
+        "user_id": "1"
+    }
+    try:
+        while True:
+            user_message = await web_socket.receive_text()
+            llm_response = await process_message(
+                user_id = user["user_id"],
+                conversation_id = conversation_id,
+                message = user_message,
+                promotion_id = promotion_id,   
+            )
+            await web_socket.send_text(llm_response)
+    except WebSocketDisconnect:
+        print(f"conversation disconnected {conversation_id}")
+
+    
+
+
+async def process_message(
+    user_id: str, 
+    conversation_id: str, 
+    message: str, 
+    promotion_id: str
+) -> str:
+    return "son"
