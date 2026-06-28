@@ -8,9 +8,9 @@ def pipe_fulfillment():
         fulfillments_db = list[FulfillmentHistory]()
         for fulfillment in fulfillments:
             fulfillment_db = FulfillmentHistory(
-                 fullfillment_id = fulfillment.fullfillment_id,
+                 fulfillment_id = fulfillment.fulfillment_id,
                  sku_id = fulfillment.sku_id,
-                 fullfillment_date = fulfillment.fullfillment_date,
+                 fulfillment_date = fulfillment.fulfillment_date,
                  quantity_received = fulfillment.quantity_received
             )
             fulfillments_db.append(fulfillment_db)

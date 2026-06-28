@@ -64,10 +64,10 @@ class Promotion(BaseModel):
  
 
  
-class FullfillmentHistory(BaseModel):
-    fullfillment_id: int
+class FulfillmentHistory(BaseModel):
+    fulfillment_id: int
     sku_id: int
-    fullfillment_date: date
+    fulfillment_date: date
     quantity_received: int = Field(gt=0)
  
  
@@ -86,7 +86,7 @@ ProductList = TypeAdapter(list[Product])
 SkuList = TypeAdapter(list[Sku])
 CustomerList = TypeAdapter(list[Customer])
 PromotionList = TypeAdapter(list[Promotion])
-FullfillmentHistoryList = TypeAdapter(list[FullfillmentHistory])
+FulfillmentHistoryList = TypeAdapter(list[FulfillmentHistory])
 SaleList = TypeAdapter(list[Sale])
  
  
