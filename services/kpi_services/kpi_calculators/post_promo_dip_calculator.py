@@ -6,23 +6,7 @@ from sqlalchemy.orm import Session
 from services.db_services.models import Sale, Promotion
 from services.db_services.promotions_db import get_promotion_by_id
 from services.db_services.session import SessionLocal
-
-
-class PostPromoDip:
-
-    def __init__(
-        self,
-        promotion_id: int,
-        baseline_units_sold: int,
-        post_period_units_sold: int,
-        post_period_ratio: float | None,
-        pull_forward_dip: bool,
-    ):
-        self.promotion_id = promotion_id
-        self.baseline_units_sold = baseline_units_sold
-        self.post_period_units_sold = post_period_units_sold
-        self.post_period_ratio = post_period_ratio
-        self.pull_forward_dip = pull_forward_dip
+from services.kpi_services.kpi_calculators.models import PostPromoDip
 
 def post_promo_dip_calculator(session: Session, promotion: Promotion) -> PostPromoDip:
 

@@ -149,4 +149,15 @@ class Sale(Base):
             f"<Sale id={self.sales_id} sku={self.sku_id} "
             f"final_price={self.final_price}>"
         )
- 
+
+#app related tables
+class User(Base):
+    __tablename__  = "users"
+
+    user_id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(nullable=False)
+    password_hash: Mapped[str] = mapped_column(nullable=False)
+
+    
+    def __repr__(self) -> str:
+        return f"<User id={self.user_id} username={self.username}>"
