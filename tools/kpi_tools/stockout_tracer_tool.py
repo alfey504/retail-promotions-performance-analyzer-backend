@@ -61,6 +61,7 @@ def _format_stockout_trace(trace: StockoutTrace) -> str:
     args_schema=StockoutTracerInput,
     response_format="content_and_artifact",
 )
+
 def stockout_inventory_trace_tool(promotion_id: int):
     """Traces opening-to-closing stock for every SKU targeted by a promotion
     across its active window, flags whether any SKU ran out of stock before
