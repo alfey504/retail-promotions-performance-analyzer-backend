@@ -2,6 +2,7 @@ from services.db_services.session import SessionLocal
 from services.db_services.models import Conversation
 from datetime import datetime
 
+from sqlalchemy import select
 def create_conversation(
     conversation_title: str,
     user_id: int,
@@ -24,5 +25,16 @@ def create_conversation(
     except Exception as e:
         print(e)
         raise e
+    finally:
+        session.close()
+
+def conversation_by_user_id(user_id: int) -> list[Conversation]:
+    session = SessionLocal()
+    try:
+        statement = select(Conversation).where(Conversation.user_id == user_id)
+        conversations = session.scalars(statement).all()
+        return list(conversations)
+    except Exception as e:
+        print(e)
     finally:
         session.close()
