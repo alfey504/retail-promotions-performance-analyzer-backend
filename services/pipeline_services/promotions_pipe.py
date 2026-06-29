@@ -11,7 +11,7 @@ def pipe_promotions():
             promotion_db = Promotion(
                 promotion_id = promotion.promotion_id,
                 promotion_name = promotion.promotion_name,
-                promotion_descriptions = promotion.promotion_description,
+                promotion_description = promotion.promotion_description,
                 promotion_type = promotion.promotion_type,
                 discount_percent = promotion.discount_percent,
                 start_date = promotion.start_date,
