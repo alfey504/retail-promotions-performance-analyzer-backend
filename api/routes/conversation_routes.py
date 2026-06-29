@@ -6,6 +6,8 @@ from datetime import datetime
 from api.utils.jwt_utils import verify_access_token
 
 from services.db_services.conversation_db import create_conversation
+from services.db_services.messages_db import get_messages_by_conversation_id
+
 
 conversation_router = APIRouter()
 
@@ -56,6 +58,14 @@ async def conversation_socket(
     if user is None:
         await web_socket.close(code=1008)
         return
+
+    try:
+        conversation_id_int = int(conversation_id)
+        messages = get_messages_by_conversation_id(conversation_id_int)
+        await web_socket.send_json(messages)
+    except Exception as e:
+        print(e)
+        await web_socket.close(code=500, reason="there was an issue connecting to conversation")
 
     
     await web_socket.accept()
