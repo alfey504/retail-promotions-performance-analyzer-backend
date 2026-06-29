@@ -3,6 +3,7 @@ from services.db_services.models import Conversation
 from datetime import datetime
 
 from sqlalchemy import select
+
 def create_conversation(
     conversation_title: str,
     user_id: int,
@@ -38,3 +39,18 @@ def conversation_by_user_id(user_id: int) -> list[Conversation]:
         print(e)
     finally:
         session.close()
+
+
+def conversation_by_id(conversation_id: int) -> Conversation | None:
+    session = SessionLocal()
+    try:
+        statement = select(Conversation).where(
+            Conversation.conversation_id == conversation_id
+        )
+        return session.scalars(statement).first()
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+ 
