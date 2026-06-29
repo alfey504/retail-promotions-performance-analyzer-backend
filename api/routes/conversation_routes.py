@@ -93,9 +93,6 @@ async def conversation_socket(
 
     
     await web_socket.accept()
-    user = {
-        "user_id": "1"
-    }
     try:
         while True:
             user_message = await web_socket.receive_text()
