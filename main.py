@@ -3,12 +3,27 @@ from services.kpi_services.historic_kpi_calculators.historic_uplift import histo
 from api.user_services.create_user import create_user
 from api.api import get_app
 import uvicorn
+import os 
+
+from langchain_openai import ChatOpenAI
 
 def main():
     init_db()
     app = get_app()
 
     uvicorn.run(app, env_file=".emv")
+
+    # llm = ChatOpenAI(
+    #     model="gpt-oss-120b",
+    #     api_key=os.getenv("CEREBRAS_API_KEY"),
+    #     base_url="https://api.cerebras.ai/v1",
+    #     default_headers={
+    #         "X-Cerebras-3rd-Party-Integration": "langgraph"
+    #     }
+    # )
+    # response = llm.invoke("hello how are you ")
+    # print(response.content)
+
     
 
 

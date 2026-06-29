@@ -1,6 +1,6 @@
 from  services.db_services.session import SessionLocal
-from  services.db_services.models import Promotion
-from  sqlalchemy import select
+from  services.db_services.models import Promotion, PromotionSku
+from  sqlalchemy import select, delete
 
 def add_promotions(promotions: list[Promotion]):
     session = SessionLocal()
@@ -47,3 +47,19 @@ def get_promotions_as_page(pageNo: int, page_length: int) ->  list[Promotion]:
         raise e
     finally:
         session.close()
+
+
+
+def delete_all_promotions():
+    session = SessionLocal()
+    try:
+        session.execute(delete(PromotionSku))
+        session.execute(delete(Promotion))
+        session.commit()
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+
+    

@@ -1,6 +1,6 @@
 from  services.db_services.session import SessionLocal
 from  services.db_services.models import Product
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 def add_product(product: Product):
     session = SessionLocal()
@@ -33,6 +33,17 @@ def get_product_by_id(product_id: int) -> Product:
             raise Exception(f"could'nt find product with product_id : {product_id}")
         return product
     except Exception as e:
+        raise e
+    finally:
+        session.close()
+
+def delete_all_products():
+    session = SessionLocal()
+    try:
+        session.execute(delete(Product))
+        session.commit()
+    except Exception as e:
+        print(e)
         raise e
     finally:
         session.close()

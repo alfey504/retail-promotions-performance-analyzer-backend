@@ -1,7 +1,7 @@
 from  services.db_services.session import SessionLocal
 from  services.db_services.models import Customer
 
-from  sqlalchemy import select
+from  sqlalchemy import select, delete
 
 
 def add_customers(customers: list[Customer]):
@@ -24,6 +24,17 @@ def customer_by_id(customer_id: int) -> Customer:
             raise Exception(f"could'nt find Customer with customer_id : {customer_id}")
         return customer
     except Exception as e:
+        raise e
+    finally:
+        session.close()
+
+def delete_all_customers():
+    session = SessionLocal()
+    try:
+        session.execute(delete(Customer))
+        session.commit()
+    except Exception as e:
+        print(e)
         raise e
     finally:
         session.close()

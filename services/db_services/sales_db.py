@@ -1,5 +1,6 @@
 from  services.db_services.session import SessionLocal
 from  services.db_services.models import Sale
+from  sqlalchemy import select, delete
 
 def add_sales(sales: list[Sale]):
     session = SessionLocal()
@@ -12,3 +13,13 @@ def add_sales(sales: list[Sale]):
     finally:
         session.close()
 
+def delete_all_sales():
+    session = SessionLocal() 
+    try:
+        session.execute(delete(Sale))
+        session.commit()
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()

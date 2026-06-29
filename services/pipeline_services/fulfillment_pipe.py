@@ -1,5 +1,5 @@
 from  services.api_services.fulfillment_api import get_all_fulfillment_data
-from  services.db_services.fulfillment_db import add_fulfillments
+from  services.db_services.fulfillment_db import add_fulfillments, delete_all_fulfillments
 from  services.db_services.models import FulfillmentHistory
 
 def pipe_fulfillment():
@@ -16,4 +16,5 @@ def pipe_fulfillment():
             fulfillments_db.append(fulfillment_db)
         add_fulfillments(fulfillments_db)
     except Exception as e:
+            print(e)
             raise e

@@ -41,6 +41,7 @@ async def login_user(user_login: UserLogin) -> ResponseModel:
         )
         
     except Exception as e:
+        print(str(e))
         return ResponseModel(
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message="there was an issue logging you in try again later",

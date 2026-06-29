@@ -1,6 +1,6 @@
 from  services.api_services.sales_api import get_all_sales
 from  services.db_services.models import Sale
-from  services.db_services.sales_db import add_sales
+from  services.db_services.sales_db import add_sales, delete_all_sales
 
 
 def pipe_sales():

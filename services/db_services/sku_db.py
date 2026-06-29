@@ -1,7 +1,7 @@
 from  services.db_services.session import SessionLocal
 from  services.db_services.models import Sku
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 def add_skus(skus: list[Sku]):
     session = SessionLocal()
@@ -26,3 +26,13 @@ def sku_by_id(sku_id: int) -> Sku:
         raise e
     finally:
         session.close()
+
+def delete_all_skus():
+    session = SessionLocal() 
+    try:
+        session.execute(delete(Sku))
+        session.close()
+    except Exception as e:
+        print(e)
+        raise e
+    

@@ -1,6 +1,7 @@
 from  services.api_services.product_api import get_products
-from  services.db_services.product_db import add_products
+from  services.db_services.product_db import add_products, delete_all_products
 from  services.db_services.models import Product
+
 
 def pipe_product():
     try:
@@ -18,4 +19,5 @@ def pipe_product():
         
         add_products(products_db)
     except Exception as e:
+            print(e)
             raise e

@@ -9,7 +9,6 @@ Matches the call your websocket already makes:
 
 from __future__ import annotations
 
-import logging
 import os
 from functools import lru_cache
 from typing import Optional
@@ -18,9 +17,10 @@ from langchain.chat_models import init_chat_model
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_openai import ChatOpenAI
 
 from agent.agent_graph_state import AgentState
-from agent_prompt import build_kickoff_instruction, build_system_prompt
+from agent.agent_prompt import build_kickoff_instruction, build_system_prompt
 from agent.agent_persistance import (
     load_lc_history,
     save_assistant_message,
@@ -30,13 +30,20 @@ from agent.agent_persistance import (
 from tools.tools import tools
 TOOLS = tools
 
-_MODEL_NAME = os.getenv("AGENT_MODEL", "anthropic:claude-sonnet-4-6")
+# _MODEL_NAME = os.getenv("AGENT_MODEL", "anthropic:claude-sonnet-4-6")
 
 
 @lru_cache(maxsize=1)
 def get_graph():
     """Build & compile the graph once, then reuse it across all sockets."""
-    model = init_chat_model(_MODEL_NAME, temperature=0)
+    model = ChatOpenAI(
+        model="gpt-oss-120b",
+        api_key= os.getenv("CEREBRAS_API_KEY"),
+        base_url="https://api.cerebras.ai/v1",
+        default_headers={
+            "X-Cerebras-3rd-Party-Integration": "langgraph"
+        }
+    )
     model_with_tools = model.bind_tools(TOOLS)
 
     async def agent_node(state: AgentState) -> dict:
