@@ -38,3 +38,13 @@ def delete_all_skus():
     finally:
         session.close()
     
+def get_all_skus() -> list[Sku]:
+    session = SessionLocal()
+    try:
+        skus = session.scalars(select(Sku)).all()
+        return list(skus)
+    except Exception as e:
+        print(e)
+        session.close()
+    finally:
+        session.close()

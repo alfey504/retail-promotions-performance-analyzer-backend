@@ -3,11 +3,11 @@ from typing import Tuple
 
 DOC_RUNNING_HEADER = "Promotion Profiles" 
 DOCUMENT_PATH = "documents/promotion_profiles.pdf"
-def isPageFooter(line: str):
+def _isPageFooter(line: str):
     l = line.strip()
     return l.startswith("Page ") and l[len("Page "):].isdigit()
 
-def load_pdf() -> str:
+def _load_pdf() -> str:
     reader = PdfReader(DOCUMENT_PATH)
     pages = [page.extract_text() for page in reader.pages] 
     full_text = " \n".join(pages)
@@ -15,11 +15,11 @@ def load_pdf() -> str:
     lines = full_text.split("\n")
     clean_text = [
         l for l in lines
-        if l.strip() != DOC_RUNNING_HEADER and not isPageFooter(l)
+        if l.strip() != DOC_RUNNING_HEADER and not _isPageFooter(l)
     ]
     return "\n".join(clean_text) 
 
-def parse_promotion_details(line: str) -> Tuple[int, str, str, str] | None:
+def _parse_promotion_details(line: str) -> Tuple[int, str, str, str] | None:
     # Promotion ID 10 · Percentage Off · 2025-11-05 to 2025-11-20
     if not line.startswith("Promotion ID "):
         return None
@@ -39,11 +39,11 @@ def parse_promotion_details(line: str) -> Tuple[int, str, str, str] | None:
     star_date, end_date = time_span.split(" to ")
     return int(promo_id), disc_type.strip(), star_date.strip(), end_date.strip()
 
-def chunk_by_heading(doc: str) -> list[dict]:
+def _chunk_by_heading(doc: str) -> list[dict]:
     lines = doc.split("\n")
     anchors = []
     for idx, line in enumerate(lines):
-        parsed = parse_promotion_details(line)
+        parsed = _parse_promotion_details(line)
         if parsed is not None:
             anchors.append((idx, *parsed))
     
@@ -84,6 +84,6 @@ def chunk_by_heading(doc: str) -> list[dict]:
     return chunks
 
 def load_document_as_chunks() -> list[dict]:
-    docs = load_pdf()
-    return chunk_by_heading(docs)
+    docs = _load_pdf()
+    return _chunk_by_heading(docs)
     

@@ -25,6 +25,18 @@ class ConversationResponse(BaseModel):
     conversation_title: str
     user_id: int
     created_at: datetime
+    promotion_id: int 
+
+    class Config:
+        from_attributes = True
+
+class SkuResponse(BaseModel):
+    sku_id: int
+    product_id: int
+    sku_name: str
+    size: Optional[str]
+    color: Optional[str]
+    price: float
 
     class Config:
         from_attributes = True

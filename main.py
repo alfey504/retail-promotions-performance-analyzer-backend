@@ -5,9 +5,17 @@ from api.api import get_app
 import uvicorn
 import os 
 
+from services.rag_services.document_loader import load_document_as_chunks
+from services.rag_services.embedding_services import embed_chunks
+from services.rag_services.qdrant_services import load_to_qdrant
 from langchain_openai import ChatOpenAI
 
 def main():
+
+    # chunks = load_document_as_chunks()
+    # embeddings = embed_chunks(chunks)
+    # load_to_qdrant(embeddings)
+
     init_db()
     app = get_app()
 

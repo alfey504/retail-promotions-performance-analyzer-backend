@@ -3,7 +3,7 @@ from api.routes.user_routes import user_router
 from api.routes.promotion_routes import promotions_router
 from api.routes.conversation_routes import conversation_router
 from api.routes.data_routes import data_router
-
+from api.routes.sku_routes import sku_router
 
 app = FastAPI()
 
@@ -12,6 +12,7 @@ app_v1.include_router(user_router)
 app_v1.include_router(promotions_router)
 app_v1.include_router(conversation_router)
 app_v1.include_router(data_router)
+app_v1.include_router(sku_router)
 
 app.include_router(app_v1)
 
