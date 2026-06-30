@@ -32,7 +32,7 @@ def add_message(
 def get_messages_by_conversation_id(conversation_id: int) ->  list[Message]:
     session = SessionLocal()
     try:
-        statement = select(Message).where(Message.conversation_id == conversation_id)
+        statement = select(Message).where(Message.conversation_id == conversation_id).order_by(Message.created_at)
         messages = session.scalars(statement).all()
         return list(messages)
     except Exception as e:

@@ -18,8 +18,6 @@ _ROLE_FACTORY = {
 
 
 def _ordered(messages):
-    """Your get_messages_by_conversation_id has no ORDER BY, so sort defensively
-    by created_at then message_id to guarantee chronological order."""
     return sorted(
         messages,
         key=lambda m: (m.created_at, getattr(m, "message_id", 0)),
@@ -27,7 +25,7 @@ def _ordered(messages):
 
 
 def _load_lc_history_sync(conversation_id: int) -> list[BaseMessage]:
-    rows = _ordered(get_messages_by_conversation_id(conversation_id))
+    rows = get_messages_by_conversation_id(conversation_id)
     history: list[BaseMessage] = []
     for row in rows:
         factory = _ROLE_FACTORY.get(row.role)
@@ -37,7 +35,7 @@ def _load_lc_history_sync(conversation_id: int) -> list[BaseMessage]:
 
 
 def _load_history_payload_sync(conversation_id: int) -> list[dict]:
-    rows = _ordered(get_messages_by_conversation_id(conversation_id))
+    rows = get_messages_by_conversation_id(conversation_id)
     return [
         {
             "id": str(row.message_id),

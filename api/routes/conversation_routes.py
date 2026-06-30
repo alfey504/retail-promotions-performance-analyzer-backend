@@ -61,11 +61,7 @@ def get_users_conversation(user = Depends(auth_middleware)) -> ResponseModel:
     user_id = user["user_id"]
     try:
         conversations_db = conversation_by_user_id(user_id)
-        conversations: list[ConversationResponse]= []
-
-        for conversation_db in conversations_db:
-            conversation = ConversationResponse.model_validate(conversation_db)
-            conversations.append(conversation)
+        conversations = [ConversationResponse.model_validate(conversation_db) for conversation_db in conversations_db]
 
         return ResponseModel(
             status=status.HTTP_200_OK,

@@ -11,10 +11,10 @@ sku_router = APIRouter()
 def fetch_all_skus(user = Depends(auth_middleware)) -> ResponseModel:
     try:
         skus_db = get_all_skus()
-        skus: list[SkuResponse] = []
-        for sku_db in skus_db:
-            sku = SkuResponse.model_validate(sku_db)
-            skus.append(sku)
+        skus = [
+            SkuResponse.model_validate(sku_db)
+            for sku_db in skus_db
+        ]
         return ResponseModel(
             status = status.HTTP_200_OK,
             message="success",

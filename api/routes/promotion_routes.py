@@ -23,18 +23,19 @@ async def get_promotions(page: int=1, user = Depends(auth_middleware)) -> PagedR
     
     try:
         promotions_db = get_promotions_as_page(page, page_size)  
-        promotions_page: list[PromotionResponse] = []  
+
+        promotions = [
+            PromotionResponse.model_validate(promo_db) 
+            for promo_db in promotions_db
+        ]
         
-        for promotion_db in promotions_db:
-            promotion = PromotionResponse.model_validate(promotion_db)
-            promotions_page.append(promotion)
         
         return PagedResponseModel(
             status = status.HTTP_200_OK,
             message = "success",
             max_page = max_page,
             current_page = page,
-            data = promotions_page
+            data = promotions
         )
     except Exception as e:
         print(e)
