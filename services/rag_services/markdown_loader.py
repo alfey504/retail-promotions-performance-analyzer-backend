@@ -7,12 +7,13 @@ def chunk_markdown_by_heading(path: str) -> list[dict]:
     current_heading = "Intro"
     current_lines = []
     current_idx = 0
-    
+
     def flush():
         if current_lines:
+            current_lines.insert(0, current_heading)
             chunks.append({
                 "id": current_idx,
-                "text": "".join(current_lines + current_heading ).strip(),
+                "text": "".join(current_lines).strip(),
                 "meta_data": {
                     "heading" : current_heading,
                 }
@@ -31,4 +32,4 @@ def chunk_markdown_by_heading(path: str) -> list[dict]:
             current_lines.append(line)
 
     flush()
-    return [c for c in chunks if c["content"]]
+    return [c for c in chunks if c["text"]]

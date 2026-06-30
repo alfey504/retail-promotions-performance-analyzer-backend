@@ -10,14 +10,13 @@ from tools.query_tools.query_by_id import customer_lookup_tool
 from tools.query_tools.query_by_id import sku_lookup_tool
 from tools.query_tools.query_by_id import product_lookup_tool
 from tools.query_tools.query_by_id import promotion_lookup_tool
-
 from tools.query_tools.sql_executer import describe_schema_tool, execute_sql_query_tool
 
 #rag tools
-from tools.rag_tools.rag_tools import semantic_search_tool
+from tools.rag_tools.rag_tools import search_promotion_profiles_tool, search_sales_guidebook_tool
 
 kpi_tools = [discount_efficiency_tool, incremental_sales_uplift_tool, post_promo_dip_tool, redemption_demographics_tool, stockout_inventory_trace_tool]
 query_tools =  [customer_lookup_tool, sku_lookup_tool, product_lookup_tool, promotion_lookup_tool, describe_schema_tool, execute_sql_query_tool]
-rag_tools = [semantic_search_tool]
+rag_tools = [search_sales_guidebook_tool, search_promotion_profiles_tool]
 
 tools = [*kpi_tools, *query_tools, *rag_tools]

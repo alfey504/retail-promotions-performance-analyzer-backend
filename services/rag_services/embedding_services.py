@@ -7,9 +7,9 @@ BASE_URL = "http://127.0.0.1:8080"
 SPARSE_MODEL_NAME = "Qdrant/bm25"
 
 
-def embed_chunks(chunks: list[dict], force_invalidate_cache = False) -> list[dict]:
+def embed_chunks(chunks: list[dict], name: str, force_invalidate_cache = False) -> list[dict]:
     if not force_invalidate_cache:
-        embedded_chunks = load_from_cache()
+        embedded_chunks = load_from_cache(name)
         if embedded_chunks is not None:
             return embedded_chunks
 
@@ -25,19 +25,19 @@ def embed_chunks(chunks: list[dict], force_invalidate_cache = False) -> list[dic
         embedded_chunk["embedding"]=embeddings[0].tolist()
         embedded_chunks.append(embedded_chunk)
     
-    save_cache(embedded_chunks)
+    save_cache(embedded_chunks, name)
     return embedded_chunks
 
-def save_cache(chunks: list[dict]): 
+def save_cache(chunks: list[dict], name: str): 
     folder_path = Path("__embedded_vector_cache")
-    file_path = folder_path / "__embedded_vector.json"
+    file_path = folder_path / f"__embedded_vector_{name}.json"
 
     folder_path.mkdir(parents=True, exist_ok=True)
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump({"embedded_chunk": chunks}, file, indent=4)
 
-def load_from_cache() -> list[dict] | None:
-    file_path = Path("__embedded_vector_cache/embedded_vector.json")
+def load_from_cache(name: str) -> list[dict] | None:
+    file_path = Path(f"__embedded_vector_cache/embedded_vector_{name}.json")
     if not file_path.exists():
         return None
     with open(file_path,"r") as file:
