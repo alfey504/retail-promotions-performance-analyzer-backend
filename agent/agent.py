@@ -111,13 +111,6 @@ async def generate_initial_analysis(
     conversation_id,
     promotion_id,
 ) -> str:
-    """Run an autonomous opening analysis for a freshly opened conversation.
-
-    Call this when the socket connects, history is empty, and a promotion is in
-    context. The agent looks up the promotion and runs the KPI tools on its own,
-    then we persist the result as the first assistant message (so reconnects show
-    it and don't re-trigger). The hidden kickoff instruction is NOT saved.
-    """
     user_id = _coerce_int(user_id, "user_id")
     conversation_id = _coerce_int(conversation_id, "conversation_id")
     promotion_id = _coerce_optional_int(promotion_id)
