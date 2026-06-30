@@ -5,9 +5,18 @@ from api.api import get_app
 import uvicorn
 import os 
 
+from services.rag_services.markdown_loader import chunk_markdown_by_heading
+from services.rag_services.embedding_services import embed_chunks
+from services.rag_services.qdrant_services import load_to_qdrant
 from langchain_openai import ChatOpenAI
+from services.rag_services.qdrant_services import PROMOTION_GUIDEBOOK_COLLECTION_NAME
 
 def main():
+
+    # chunks = chunk_markdown_by_heading("documents/sales_guidebook.md")
+    # embeddings = embed_chunks(chunks, "sales_guidebook")
+    # load_to_qdrant(embeddings, collection=PROMOTION_GUIDEBOOK_COLLECTION_NAME)
+
     init_db()
     app = get_app()
 

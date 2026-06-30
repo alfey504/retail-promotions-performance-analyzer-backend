@@ -7,7 +7,7 @@ from services.pipeline_services.pipe import reload_data
 data_router = APIRouter(tags=["data"])
 
 @data_router.post("/data/reload", tags=["data"])
-async def reload_data(user = Depends(auth_middleware)) -> ResponseModel:
+async def reload_data_from_api(user = Depends(auth_middleware)) -> ResponseModel:
     try:
         reload_data()
         return ResponseModel(
@@ -20,8 +20,6 @@ async def reload_data(user = Depends(auth_middleware)) -> ResponseModel:
         return ResponseModel(
             status = status.HTTP_500_INTERNAL_SERVER_ERROR,
             message = "there was an issue while piping data from api to database",
-            max_page=0,
-            current_page=0,
             data=None
         )
             

@@ -1,6 +1,6 @@
 from  services.db_services.session import SessionLocal
 from  services.db_services.models import Product
-from sqlalchemy import select, delete
+from sqlalchemy import select, text
 
 def add_product(product: Product):
     session = SessionLocal()
@@ -40,7 +40,7 @@ def get_product_by_id(product_id: int) -> Product:
 def delete_all_products():
     session = SessionLocal()
     try:
-        session.execute(delete(Product))
+        session.execute(text("TRUNCATE TABLE products RESTART IDENTITY CASCADE;"))
         session.commit()
     except Exception as e:
         print(e)

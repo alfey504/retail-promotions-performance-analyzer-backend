@@ -20,12 +20,12 @@ def reload_data():
     _pipe_data()
 
 def _pipe_data():
-    pipe_sales()
-    pipe_promotions()
-    pipe_fulfillment()
-    pipe_skus()
     pipe_product()
     pipe_customers()
+    pipe_skus()
+    pipe_fulfillment()
+    pipe_promotions()
+    pipe_sales()
     
 def _empty_table():
     delete_all_sales()

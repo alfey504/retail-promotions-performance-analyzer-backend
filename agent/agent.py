@@ -1,12 +1,3 @@
-"""LangGraph agent for the promotions-analytics websocket.
-
-Public surface:
-    - process_message(...) -> str   (drop-in for your socket)
-
-Matches the call your websocket already makes:
-    process_message(user_id, conversation_id, message, promotion_id)
-"""
-
 from __future__ import annotations
 
 import os
@@ -29,8 +20,6 @@ from agent.agent_persistance import (
 
 from tools.tools import tools
 TOOLS = tools
-
-# _MODEL_NAME = os.getenv("AGENT_MODEL", "anthropic:claude-sonnet-4-6")
 
 
 @lru_cache(maxsize=1)
