@@ -39,6 +39,7 @@ def semantic_search_tool(query: str, top_k: int = 5):
     pattern. Do NOT use this for precise numbers (uplift, revenue, stock
     levels) -- use the KPI tools for those instead."""
     try:
+        print("searching vecotr db")
         texts = search_query(query, top_k=top_k)
     except Exception as e:
         error = f"Semantic search failed: {e}"
