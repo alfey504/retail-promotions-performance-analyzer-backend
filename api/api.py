@@ -5,6 +5,10 @@ from api.routes.promotion_routes import promotions_router
 from api.routes.conversation_routes import conversation_router
 from api.routes.data_routes import data_router
 from api.routes.sku_routes import sku_router
+import logging 
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 

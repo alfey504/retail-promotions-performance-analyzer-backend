@@ -10,3 +10,5 @@ wheels/
 .venv
 .env
 /documents
+
+__embedded_vector_cache
